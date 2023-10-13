@@ -886,7 +886,7 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
 
             //! (BLJ's) This properly handles long jumps from getting forward speed with
             //  too much velocity, but misses backwards longs allowing high negative speeds.
-            if ((m->forwardVel *= 1.5f) > 48.0f) {
+            if (m->forwardVel < 48.0f && (m->forwardVel *= 1.5f) > 48.0f) {
                 m->forwardVel = 48.0f;
             }
             break;
@@ -1140,7 +1140,7 @@ s32 check_common_action_exits(struct MarioState *m) {
     if (m->input & INPUT_OFF_FLOOR) {
         return set_mario_action(m, ACT_FREEFALL, 0);
     }
-    if (m->input & INPUT_NONZERO_ANALOG) {
+    if (m->input & (INPUT_NONZERO_ANALOG | INPUT_BALL_MOVING)) {
         return set_mario_action(m, ACT_WALKING, 0);
     }
     if (m->input & INPUT_ABOVE_SLIDE) {
@@ -1419,6 +1419,10 @@ void update_mario_inputs(struct MarioState *m) {
     if (m->marioObj->oInteractStatus
         & (INT_STATUS_MARIO_STUNNED | INT_STATUS_MARIO_KNOCKBACK_DMG | INT_STATUS_MARIO_SHOCKWAVE)) {
         m->input |= INPUT_STOMPED;
+    }
+
+    if (sqr(m->slideVelX) + sqr(m->slideVelZ) > sqr(BALL_STOP_SPEED)) {
+        m->input |= INPUT_BALL_MOVING;
     }
 
     // This function is located near other unused trampoline functions,

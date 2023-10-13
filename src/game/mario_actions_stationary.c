@@ -16,6 +16,7 @@
 #include "sound_init.h"
 #include "surface_terrains.h"
 #include "rumble_init.h"
+#include "monkey_ball.h"
 
 s32 check_common_idle_cancels(struct MarioState *m) {
     mario_drop_held_object(m);
@@ -853,7 +854,9 @@ s32 check_common_landing_cancels(struct MarioState *m, u32 action) {
         }
     }
 
-    if (m->input & (INPUT_NONZERO_ANALOG | INPUT_A_PRESSED | INPUT_OFF_FLOOR | INPUT_ABOVE_SLIDE)) {
+    if (m->input
+        & (INPUT_NONZERO_ANALOG | INPUT_A_PRESSED | INPUT_OFF_FLOOR | INPUT_ABOVE_SLIDE
+            | INPUT_BALL_MOVING)) {
         return check_common_action_exits(m);
     }
 

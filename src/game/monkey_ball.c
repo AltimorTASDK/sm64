@@ -10,10 +10,22 @@
 #define MAX_TILT  DEGREES(30.0f)
 #define LERP_RATE (f32)(5.0 * M_PI / 180.0)
 
+static s32 allow_tilt(struct MarioState *m) {
+    if (m->input & INPUT_IN_WATER) {
+        return FALSE;
+    } else if (m->action & (ACT_FLAG_ON_POLE | ACT_FLAG_RIDING_SHELL)) {
+        return FALSE;
+    } else if (m->action == ACT_LAVA_BOOST) {
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
 void ball_update_world_tilt(struct MarioState *m) {
     Vec3f targetWorldUp;
 
-    if (!(m->input & INPUT_IN_WATER)) {
+    if (allow_tilt(m)) {
         s16 pitch = sqr(m->controller->stickMag / 64.0f) * MAX_TILT;
         s16 yaw = atan2s(-m->controller->stickY, m->controller->stickX) + m->area->camera->yaw;
         // Swap sin and cos for pitch to get up vector
@@ -57,7 +69,7 @@ void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
         vec3f_copy(up, m->worldUp);
     }
 
-    if (xzLength != 0.0f) {
+    if (xzLength > 1e-4f) {
         vec3f_set(right, -v[2] / xzLength, 0.0f, v[0] / xzLength);
         vec3f_cross(forward, up, right);
         vec3f_normalize(forward);

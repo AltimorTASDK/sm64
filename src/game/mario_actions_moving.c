@@ -430,8 +430,8 @@ s32 update_decelerating_speed(struct MarioState *m) {
     return stopped;
 }
 
-#if 0
 void update_walking_speed(struct MarioState *m) {
+#if 0
     f32 maxTargetSpeed;
     f32 targetSpeed;
 
@@ -454,15 +454,22 @@ void update_walking_speed(struct MarioState *m) {
     } else if (m->floorNormal.y >= 0.95f) {
         m->forwardVel -= 1.0f;
     }
+#else
+    apply_slope_accel(m);
+    if (m->forwardVel <= 0.0f) {
+        m->forwardVel += min(1.1f * m->floorNormal.y, -m->forwardVel);
+    } else {
+        m->forwardVel -= min(1.0f * m->floorNormal.y, m->forwardVel);
+    }
+#endif
 
+#if 0
     if (m->forwardVel > 48.0f) {
         m->forwardVel = 48.0f;
     }
 
     m->faceAngle[1] = approach_angle(m->faceAngle[1], m->intendedYaw, 0x800);
     apply_slope_accel(m);
-#else
-void update_walking_speed(UNUSED struct MarioState *m) {
 #endif
 }
 
@@ -802,6 +809,7 @@ s32 act_walking(struct MarioState *m) {
         return TRUE;
     }
 
+#if 0
     if (m->input & INPUT_UNKNOWN_5) {
         return begin_braking_action(m);
     }
@@ -809,6 +817,7 @@ s32 act_walking(struct MarioState *m) {
     if (analog_stick_held_back(m) && m->forwardVel >= 16.0f) {
         return set_mario_action(m, ACT_TURNING_AROUND, 0);
     }
+#endif
 
     if (m->input & INPUT_Z_PRESSED) {
         return set_mario_action(m, ACT_CROUCH_SLIDE, 0);
@@ -818,6 +827,10 @@ s32 act_walking(struct MarioState *m) {
 
     vec3f_copy(startPos, m->pos);
     update_walking_speed(m);
+
+    if (sqr(m->forwardVel) <= sqr(BALL_STOP_SPEED)) {
+        return begin_braking_action(m);
+    }
 
     switch (perform_ground_step(m)) {
         case GROUND_STEP_LEFT_GROUND:
@@ -1718,6 +1731,7 @@ s32 act_death_exit_land(struct MarioState *m) {
 u32 common_landing_action(struct MarioState *m, s16 animation, u32 airAction) {
     u32 stepResult;
 
+#if 0
     if (m->input & INPUT_NONZERO_ANALOG) {
         apply_landing_accel(m, 0.98f);
     } else if (m->forwardVel >= 16.0f) {
@@ -1725,6 +1739,9 @@ u32 common_landing_action(struct MarioState *m, s16 animation, u32 airAction) {
     } else {
         m->vel[1] = 0.0f;
     }
+#else
+    update_sliding(m, 4.0f);
+#endif
 
     stepResult = perform_ground_step(m);
     switch (stepResult) {
