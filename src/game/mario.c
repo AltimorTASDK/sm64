@@ -1422,10 +1422,6 @@ void update_mario_inputs(struct MarioState *m) {
         m->input |= INPUT_STOMPED;
     }
 
-    if (sqr(m->slideVelX) + sqr(m->slideVelZ) > sqr(BALL_STOP_SPEED)) {
-        m->input |= INPUT_BALL_MOVING;
-    }
-
     // This function is located near other unused trampoline functions,
     // perhaps logically grouped here with the timers.
     stub_mario_step_1(m);
@@ -1743,6 +1739,12 @@ s32 execute_mario_action(UNUSED struct Object *o) {
         // which can lead to unexpected sub-frame behavior. Could potentially hang
         // if a loop of actions were found, but there has not been a situation found.
         while (inLoop) {
+            if (sqr(gMarioState->vel[0]) + sqr(gMarioState->vel[2]) > sqr(BALL_STOP_SPEED)) {
+                gMarioState->input |= INPUT_BALL_MOVING;
+            } else {
+                gMarioState->input &= ~INPUT_BALL_MOVING;
+            }
+
             switch (gMarioState->action & ACT_GROUP_MASK) {
                 case ACT_GROUP_STATIONARY:
                     inLoop = mario_execute_stationary_action(gMarioState);

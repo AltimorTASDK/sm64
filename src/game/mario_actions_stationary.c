@@ -44,7 +44,7 @@ s32 check_common_idle_cancels(struct MarioState *m) {
         return set_mario_action(m, ACT_FIRST_PERSON, 0);
     }
 
-    if (m->input & INPUT_NONZERO_ANALOG) {
+    if (m->input & (INPUT_NONZERO_ANALOG | INPUT_BALL_MOVING)) {
         m->faceAngle[1] = (s16) m->intendedYaw;
         return set_mario_action(m, ACT_WALKING, 0);
     }
@@ -87,7 +87,7 @@ s32 check_common_hold_idle_cancels(struct MarioState *m) {
         return set_mario_action(m, ACT_HOLD_BEGIN_SLIDING, 0);
     }
 
-    if (m->input & INPUT_NONZERO_ANALOG) {
+    if (m->input & (INPUT_NONZERO_ANALOG | INPUT_BALL_MOVING)) {
         m->faceAngle[1] = (s16) m->intendedYaw;
         return set_mario_action(m, ACT_HOLD_WALKING, 0);
     }
