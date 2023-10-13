@@ -798,9 +798,11 @@ s32 act_walking(struct MarioState *m) {
         return set_mario_action(m, ACT_BEGIN_SLIDING, 0);
     }
 
+#if 0
     if (m->input & INPUT_FIRST_PERSON) {
         return begin_braking_action(m);
     }
+#endif
 
     if (m->input & INPUT_A_PRESSED) {
         return set_jump_from_landing(m);
