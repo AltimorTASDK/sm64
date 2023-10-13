@@ -879,6 +879,7 @@ s32 act_move_punching(struct MarioState *m) {
 
     mario_update_punch_sequence(m);
 
+#if 0
     if (m->forwardVel >= 0.0f) {
         apply_slope_decel(m, 0.5f);
     } else {
@@ -887,6 +888,9 @@ s32 act_move_punching(struct MarioState *m) {
         }
         apply_slope_accel(m);
     }
+#else
+    update_walking_speed(m);
+#endif
 
     switch (perform_ground_step(m)) {
         case GROUND_STEP_LEFT_GROUND:
