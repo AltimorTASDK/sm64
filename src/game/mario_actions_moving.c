@@ -430,31 +430,7 @@ s32 update_decelerating_speed(struct MarioState *m) {
     return stopped;
 }
 
-void update_walking_speed(struct MarioState *m) {
-#if 0
-    f32 maxTargetSpeed;
-    f32 targetSpeed;
-
-    if (m->floor != NULL && m->floor->type == SURFACE_SLOW) {
-        maxTargetSpeed = 24.0f;
-    } else {
-        maxTargetSpeed = 32.0f;
-    }
-
-    targetSpeed = m->intendedMag < maxTargetSpeed ? m->intendedMag : maxTargetSpeed;
-
-    if (m->quicksandDepth > 10.0f) {
-        targetSpeed *= 6.25 / m->quicksandDepth;
-    }
-
-    if (m->forwardVel <= 0.0f) {
-        m->forwardVel += 1.1f;
-    } else if (m->forwardVel <= targetSpeed) {
-        m->forwardVel += 1.1f - m->forwardVel / 43.0f;
-    } else if (m->floorNormal.y >= 0.95f) {
-        m->forwardVel -= 1.0f;
-    }
-#else
+s32 update_walking_speed(struct MarioState *m) {
     f32 oldSpeed;
     f32 newSpeed;
 
@@ -462,29 +438,21 @@ void update_walking_speed(struct MarioState *m) {
     oldSpeed = sqrtf(sqr(m->slideVelX) + sqr(m->slideVelZ));
     newSpeed = oldSpeed - (m->forwardVel >= 0.0f ? 1.0f : 1.1f) * m->floorNormal.y;
 
-    if (newSpeed > 0.0f) {
+    if (newSpeed > BALL_STOP_SPEED) {
         m->slideVelX *= newSpeed / oldSpeed;
         m->slideVelZ *= newSpeed / oldSpeed;
         m->vel[0] = m->slideVelX;
         m->vel[2] = m->slideVelZ;
         m->forwardVel = newSpeed * coss(m->faceAngle[1] - m->slideYaw);
+        return FALSE;
     } else {
         m->slideVelX = 0.0f;
         m->slideVelZ = 0.0f;
         m->vel[0] = 0.0f;
         m->vel[2] = 0.0f;
         m->forwardVel = 0.0f;
+        return TRUE;
     }
-#endif
-
-#if 0
-    if (m->forwardVel > 48.0f) {
-        m->forwardVel = 48.0f;
-    }
-
-    m->faceAngle[1] = approach_angle(m->faceAngle[1], m->intendedYaw, 0x800);
-    apply_slope_accel(m);
-#endif
 }
 
 s32 should_begin_sliding(struct MarioState *m) {
@@ -838,10 +806,9 @@ s32 act_walking(struct MarioState *m) {
     m->actionState = 0;
 
     vec3f_copy(startPos, m->pos);
-    update_walking_speed(m);
 
-    if (sqr(m->forwardVel) <= sqr(BALL_STOP_SPEED)) {
-        return begin_braking_action(m);
+    if (update_walking_speed(m)) {
+        return set_mario_action(m, ACT_BRAKING_STOP, 0);
     }
 
     switch (perform_ground_step(m)) {
