@@ -315,6 +315,12 @@ struct MarioState {
     /*0xC4*/ f32 gettingBlownGravity;
 
     Vec3f worldUp;
+
+    struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } floorNormal, wallNormal;
 };
 
 #endif // TYPES_H

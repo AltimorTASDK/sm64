@@ -16,6 +16,7 @@
 #include "behavior_data.h"
 #include "level_table.h"
 #include "rumble_init.h"
+#include "monkey_ball.h"
 
 #define MIN_SWIM_STRENGTH 160
 #define MIN_SWIM_SPEED 16.0f
@@ -87,6 +88,7 @@ static u32 perform_water_full_step(struct MarioState *m, Vec3f nextPos) {
             vec3f_copy(m->pos, nextPos);
             m->floor = floor;
             m->floorHeight = floorHeight;
+            ball_update_floor_normal(m, floor);
 
             if (wall != NULL) {
                 return WATER_STEP_HIT_WALL;
@@ -103,6 +105,7 @@ static u32 perform_water_full_step(struct MarioState *m, Vec3f nextPos) {
         vec3f_set(m->pos, nextPos[0], ceilHeight - 160.0f, nextPos[2]);
         m->floor = floor;
         m->floorHeight = floorHeight;
+        ball_update_floor_normal(m, floor);
         return WATER_STEP_HIT_CEILING;
     } else {
         if (ceilHeight - floorHeight < 160.0f) {
@@ -112,6 +115,7 @@ static u32 perform_water_full_step(struct MarioState *m, Vec3f nextPos) {
         vec3f_set(m->pos, nextPos[0], floorHeight, nextPos[2]);
         m->floor = floor;
         m->floorHeight = floorHeight;
+        ball_update_floor_normal(m, floor);
         return WATER_STEP_HIT_FLOOR;
     }
 }
@@ -1122,7 +1126,7 @@ static void update_metal_water_walking_speed(struct MarioState *m) {
         m->forwardVel += 1.1f;
     } else if (m->forwardVel <= val) {
         m->forwardVel += 1.1f - m->forwardVel / 43.0f;
-    } else if (m->floor->normal.y >= 0.95f) { // ~cos(18.194872 deg)
+    } else if (m->floorNormal.y >= 0.95f) { // ~cos(18.194872 deg)
         m->forwardVel -= 1.0f;
     }
 

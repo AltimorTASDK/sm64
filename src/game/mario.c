@@ -425,7 +425,7 @@ s32 mario_get_floor_class(struct MarioState *m) {
     }
 
     // Crawling allows Mario to not slide on certain steeper surfaces.
-    if (m->action == ACT_CRAWLING && m->floor->normal.y > 0.5f && floorClass == SURFACE_CLASS_DEFAULT) {
+    if (m->action == ACT_CRAWLING && m->floorNormal.y > 0.5f && floorClass == SURFACE_CLASS_DEFAULT) {
         floorClass = SURFACE_CLASS_NOT_SLIPPERY;
     }
 
@@ -575,7 +575,7 @@ u32 mario_floor_is_slippery(struct MarioState *m) {
     f32 normY;
 
     if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SLIDE
-        && m->floor->normal.y < COS_1) { // ~cos(1 deg)
+        && m->floorNormal.y < COS_1) { // ~cos(1 deg)
         return TRUE;
     }
 
@@ -597,7 +597,7 @@ u32 mario_floor_is_slippery(struct MarioState *m) {
             break;
     }
 
-    return m->floor->normal.y <= normY;
+    return m->floorNormal.y <= normY;
 }
 
 /**
@@ -607,7 +607,7 @@ s32 mario_floor_is_slope(struct MarioState *m) {
     f32 normY;
 
     if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SLIDE
-        && m->floor->normal.y < COS_1) { // ~cos(1 deg)
+        && m->floorNormal.y < COS_1) { // ~cos(1 deg)
         return TRUE;
     }
 
@@ -629,7 +629,7 @@ s32 mario_floor_is_slope(struct MarioState *m) {
             break;
     }
 
-    return m->floor->normal.y <= normY;
+    return m->floorNormal.y <= normY;
 }
 
 /**
@@ -662,7 +662,7 @@ s32 mario_floor_is_steep(struct MarioState *m) {
                 break;
         }
 
-        result = m->floor->normal.y <= normY;
+        result = m->floorNormal.y <= normY;
     }
 
     return result;
@@ -1235,8 +1235,8 @@ void debug_print_speed_action_normal(struct MarioState *m) {
 
     if (gShowDebugText) {
         steepness = sqrtf(
-            ((m->floor->normal.x * m->floor->normal.x) + (m->floor->normal.z * m->floor->normal.z)));
-        floor_nY = m->floor->normal.y;
+            ((m->floorNormal.x * m->floorNormal.x) + (m->floorNormal.z * m->floorNormal.z)));
+        floor_nY = m->floorNormal.y;
 
         print_text_fmt_int(210, 88, "ANG %d", (atan2s(floor_nY, steepness) * 180.0f) / 32768.0f);
 
@@ -1333,8 +1333,10 @@ void update_mario_geometry_inputs(struct MarioState *m) {
     gasLevel = find_poison_gas_level(m->pos[0], m->pos[2]);
     m->waterLevel = find_water_level(m->pos[0], m->pos[2]);
 
+    ball_update_surface_normals(m);
+
     if (m->floor != NULL) {
-        m->floorAngle = atan2s(m->floor->normal.z, m->floor->normal.x);
+        m->floorAngle = atan2s(m->floorNormal.z, m->floorNormal.x);
         m->terrainSoundAddend = mario_get_terrain_sound_addend(m);
 
         if ((m->pos[1] > m->waterLevel - 40) && mario_floor_is_slippery(m)) {

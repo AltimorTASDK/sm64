@@ -275,6 +275,10 @@ static s32 perform_ground_quarter_step(struct MarioState *m, Vec3f nextPos) {
 
     m->wall = upperWall;
 
+    if (upperWall != NULL) {
+        ball_update_wall_normal(m, upperWall);
+    }
+
     if (floor == NULL) {
         return GROUND_STEP_HIT_WALL_STOP_QSTEPS;
     }
@@ -293,6 +297,7 @@ static s32 perform_ground_quarter_step(struct MarioState *m, Vec3f nextPos) {
         vec3f_copy(m->pos, nextPos);
         m->floor = floor;
         m->floorHeight = floorHeight;
+        ball_update_floor_normal(m, floor);
         return GROUND_STEP_LEFT_GROUND;
     }
 
@@ -303,6 +308,7 @@ static s32 perform_ground_quarter_step(struct MarioState *m, Vec3f nextPos) {
     vec3f_set(m->pos, nextPos[0], floorHeight, nextPos[2]);
     m->floor = floor;
     m->floorHeight = floorHeight;
+    ball_update_floor_normal(m, floor);
 
     if (upperWall != NULL) {
         s16 wallDYaw = atan2s(upperWall->normal.z, upperWall->normal.x) - m->faceAngle[1];
@@ -331,7 +337,7 @@ s32 perform_ground_step(struct MarioState *m) {
         moveDelta[2] = m->floor->normal.y * (m->vel[2] / 4.0f);
         moveDelta[1] = 0.0f;
 
-        ball_rotate_vector(m, moveDelta);
+        ball_rotate_vector(m, moveDelta, moveDelta);
 
         intendedPos[0] = m->pos[0] + moveDelta[0];
         intendedPos[1] = m->pos[1] + moveDelta[1];
@@ -385,6 +391,7 @@ u32 check_ledge_grab(struct MarioState *m, struct Surface *wall, Vec3f intendedP
     vec3f_copy(m->pos, ledgePos);
     m->floor = ledgeFloor;
     m->floorHeight = ledgePos[1];
+    ball_update_floor_normal(m, ledgeFloor);
 
     m->floorAngle = atan2s(ledgeFloor->normal.z, ledgeFloor->normal.x);
 
@@ -442,6 +449,7 @@ s32 perform_air_quarter_step(struct MarioState *m, Vec3f intendedPos, u32 stepAr
             m->pos[2] = nextPos[2];
             m->floor = floor;
             m->floorHeight = floorHeight;
+            ball_update_floor_normal(m, floor);
         }
 
         //! When ceilHeight - floorHeight <= 160, the step result says that
@@ -484,16 +492,19 @@ s32 perform_air_quarter_step(struct MarioState *m, Vec3f intendedPos, u32 stepAr
         vec3f_copy(m->pos, nextPos);
         m->floor = floor;
         m->floorHeight = floorHeight;
+        ball_update_floor_normal(m, floor);
         return AIR_STEP_NONE;
     }
 
     vec3f_copy(m->pos, nextPos);
     m->floor = floor;
     m->floorHeight = floorHeight;
+    ball_update_floor_normal(m, floor);
 
     if (upperWall != NULL || lowerWall != NULL) {
         m->wall = upperWall != NULL ? upperWall : lowerWall;
-        wallDYaw = atan2s(m->wall->normal.z, m->wall->normal.x) - m->faceAngle[1];
+        ball_update_wall_normal(m, m->wall);
+        wallDYaw = atan2s(m->wallNormal.z, m->wallNormal.x) - m->faceAngle[1];
 
         if (m->wall->type == SURFACE_BURNING) {
             return AIR_STEP_HIT_LAVA_WALL;
@@ -629,7 +640,7 @@ s32 perform_air_step(struct MarioState *m, u32 stepArg) {
         moveDelta[1] = m->vel[1] / 4.0f;
         moveDelta[2] = m->vel[2] / 4.0f;
 
-        ball_rotate_vector(m, moveDelta);
+        ball_rotate_vector(m, moveDelta, moveDelta);
 
         intendedPos[0] = m->pos[0] + moveDelta[0];
         intendedPos[1] = m->pos[1] + moveDelta[1];

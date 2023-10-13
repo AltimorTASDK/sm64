@@ -1,12 +1,13 @@
 #include <PR/ultratypes.h>
 
+#include "monkey_ball.h"
 #include "mario.h"
 #include "area.h"
 #include "engine/math_util.h"
 #include "game_init.h"
 
 #define MAX_TILT  DEGREES(15.0f)
-#define LERP_RATE (f32)(2.0 * M_PI / 180.0)
+#define LERP_RATE (f32)(5.0 * M_PI / 180.0)
 
 void ball_update_world_tilt(struct MarioState *m) {
     s16 pitch = sqr(m->controller->stickMag / 64.0f) * -MAX_TILT;
@@ -22,7 +23,24 @@ void ball_update_world_tilt(struct MarioState *m) {
     vec3f_normalize(m->worldUp); // Prevent cumulative magnitude error
 }
 
-void ball_rotate_vector(struct MarioState *m, Vec3f v) {
+void ball_update_floor_normal(struct MarioState *m, struct Surface *floor) {
+    ball_rotate_vector(m, &m->floorNormal.x, &floor->normal.x);
+}
+
+void ball_update_wall_normal(struct MarioState *m, struct Surface *wall) {
+    ball_rotate_vector(m, &m->wallNormal.x, &wall->normal.x);
+}
+
+void ball_update_surface_normals(struct MarioState *m) {
+    if (m->floor != NULL) {
+        ball_rotate_vector(m, &m->floorNormal.x, &m->floor->normal.x);
+    }
+    if (m->wall != NULL) {
+        ball_rotate_vector(m, &m->wallNormal.x, &m->wall->normal.x);
+    }
+}
+
+void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v) {
     Vec3f right, forward;
     f32 xzLength = sqrtf(v[0] * v[0] + v[2] * v[2]);
 
@@ -30,12 +48,12 @@ void ball_rotate_vector(struct MarioState *m, Vec3f v) {
         vec3f_set(right, -v[2] / xzLength, 0.0f, v[0] / xzLength);
         vec3f_cross(forward, m->worldUp, right);
         vec3f_normalize(forward);
-        v[0] = m->worldUp[0] * v[1] + forward[0] * xzLength;
-        v[2] = m->worldUp[2] * v[1] + forward[2] * xzLength;
-        v[1] = m->worldUp[1] * v[1] + forward[1] * xzLength;
+        out[0] = m->worldUp[0] * v[1] + forward[0] * xzLength;
+        out[2] = m->worldUp[2] * v[1] + forward[2] * xzLength;
+        out[1] = m->worldUp[1] * v[1] + forward[1] * xzLength;
     } else {
-        v[0] = m->worldUp[0] * v[1];
-        v[2] = m->worldUp[2] * v[1];
-        v[1] = m->worldUp[1] * v[1];
+        out[0] = m->worldUp[0] * v[1];
+        out[2] = m->worldUp[2] * v[1];
+        out[1] = m->worldUp[1] * v[1];
     }
 }

@@ -16,6 +16,7 @@
 #include "camera.h"
 #include "level_table.h"
 #include "rumble_init.h"
+#include "monkey_ball.h"
 
 #define POLE_NONE          0
 #define POLE_TOUCHED_FLOOR 1
@@ -308,6 +309,10 @@ s32 perform_hanging_step(struct MarioState *m, Vec3f nextPos) {
     floorHeight = find_floor(nextPos[0], nextPos[1], nextPos[2], &floor);
     ceilHeight = vec3f_find_ceil(nextPos, floorHeight, &ceil);
 
+    if (m->wall != NULL) {
+        ball_update_wall_normal(m, m->wall);
+    }
+
     if (floor == NULL) {
         return HANG_HIT_CEIL_OR_OOB;
     }
@@ -336,6 +341,7 @@ s32 perform_hanging_step(struct MarioState *m, Vec3f nextPos) {
     m->floorHeight = floorHeight;
     m->ceil = ceil;
     m->ceilHeight = ceilHeight;
+    ball_update_floor_normal(m, floor);
 
     return HANG_NONE;
 }
@@ -548,7 +554,7 @@ s32 act_ledge_grab(struct MarioState *m) {
         m->actionTimer++;
     }
 
-    if (m->floor->normal.y < COS_25) {
+    if (m->floorNormal.y < COS_25) {
         return let_go_of_ledge(m);
     }
 
@@ -810,6 +816,7 @@ s32 act_tornado_twirling(struct MarioState *m) {
     if (floor != NULL) {
         m->floor = floor;
         m->floorHeight = floorHeight;
+        ball_update_floor_normal(m, floor);
         vec3f_copy(m->pos, nextPos);
     } else {
         if (nextPos[1] >= m->floorHeight) {
