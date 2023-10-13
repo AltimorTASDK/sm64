@@ -643,13 +643,10 @@ s32 mario_floor_is_slope(struct MarioState *m) {
 /**
  * Determines if a surface is steep based on the surface class.
  */
+#if 0
 s32 mario_floor_is_steep(struct MarioState *m) {
     f32 normY;
     s32 result = FALSE;
-
-    if (m->input & INPUT_NONZERO_ANALOG) {
-        return TRUE;
-    }
 
     // Interestingly, this function does not check for the
     // slide terrain type. This means that steep behavior persists for
@@ -678,6 +675,10 @@ s32 mario_floor_is_steep(struct MarioState *m) {
     }
 
     return result;
+#else
+s32 mario_floor_is_steep(UNUSED struct MarioState *m) {
+    return FALSE;
+#endif
 }
 
 /**
@@ -796,7 +797,9 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
     switch (action) {
         case ACT_DOUBLE_JUMP:
             set_mario_y_vel_based_on_fspeed(m, 52.0f, 0.25f);
+#if 0
             m->forwardVel *= 0.8f;
+#endif
             break;
 
         case ACT_BACKFLIP:
@@ -807,7 +810,9 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
 
         case ACT_TRIPLE_JUMP:
             set_mario_y_vel_based_on_fspeed(m, 69.0f, 0.0f);
+#if 0
             m->forwardVel *= 0.8f;
+#endif
             break;
 
         case ACT_FLYING_TRIPLE_JUMP:
@@ -834,7 +839,9 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
         case ACT_HOLD_JUMP:
             m->marioObj->header.gfx.animInfo.animID = -1;
             set_mario_y_vel_based_on_fspeed(m, 42.0f, 0.25f);
+#if 0
             m->forwardVel *= 0.8f;
+#endif
             break;
 
         case ACT_WALL_KICK_AIR:

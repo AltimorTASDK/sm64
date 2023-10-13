@@ -58,6 +58,7 @@ s32 lava_boost_on_wall(struct MarioState *m) {
     return drop_and_set_mario_action(m, ACT_LAVA_BOOST, 1);
 }
 
+#if 0
 s32 check_fall_damage(struct MarioState *m, u32 hardFallAction) {
     f32 fallHeight;
     f32 damageHeight;
@@ -102,6 +103,9 @@ s32 check_fall_damage(struct MarioState *m, u32 hardFallAction) {
         }
     }
 
+#else
+s32 check_fall_damage(UNUSED struct MarioState *m, UNUSED u32 hardFallAction) {
+#endif
     return FALSE;
 }
 
@@ -210,16 +214,16 @@ void update_air_with_turn(struct MarioState *m) {
         if (m->forwardVel < -16.0f) {
             m->forwardVel += 2.0f;
         }
-#endif
 
         m->vel[0] = m->slideVelX = m->forwardVel * sins(m->faceAngle[1]);
         m->vel[2] = m->slideVelZ = m->forwardVel * coss(m->faceAngle[1]);
+#endif
     }
 }
 
 void update_air_without_turn(struct MarioState *m) {
-    f32 sidewaysSpeed = 0.0f;
 #if 0
+    f32 sidewaysSpeed = 0.0f;
     f32 dragThreshold;
     s16 intendedDYaw;
     f32 intendedMag;
@@ -245,7 +249,6 @@ void update_air_without_turn(struct MarioState *m) {
         if (m->forwardVel < -16.0f) {
             m->forwardVel += 2.0f;
         }
-#endif
 
         m->slideVelX = m->forwardVel * sins(m->faceAngle[1]);
         m->slideVelZ = m->forwardVel * coss(m->faceAngle[1]);
@@ -255,6 +258,7 @@ void update_air_without_turn(struct MarioState *m) {
 
         m->vel[0] = m->slideVelX;
         m->vel[2] = m->slideVelZ;
+#endif
     }
 }
 

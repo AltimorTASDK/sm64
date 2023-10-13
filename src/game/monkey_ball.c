@@ -6,7 +6,7 @@
 #include "engine/math_util.h"
 #include "game_init.h"
 
-#define MAX_TILT  DEGREES(15.0f)
+#define MAX_TILT  DEGREES(30.0f)
 #define LERP_RATE (f32)(5.0 * M_PI / 180.0)
 
 void ball_update_world_tilt(struct MarioState *m) {
