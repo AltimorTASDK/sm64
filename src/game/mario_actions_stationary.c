@@ -649,6 +649,10 @@ s32 act_butt_slide_stop(struct MarioState *m) {
         return check_common_action_exits(m);
     }
 
+    if (m->input & INPUT_B_PRESSED) {
+        return set_mario_action(m, ACT_PUNCHING, 0);
+    }
+
     stopping_step(m, MARIO_ANIM_STOP_SLIDE, ACT_IDLE);
     if (m->marioObj->header.gfx.animInfo.animFrame == 6) {
         play_mario_landing_sound(m, SOUND_ACTION_TERRAIN_LANDING);
