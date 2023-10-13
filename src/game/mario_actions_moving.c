@@ -458,14 +458,21 @@ void update_walking_speed(struct MarioState *m) {
     f32 oldSpeed, newSpeed;
     update_sliding(m, 4.0f);
     oldSpeed = sqrtf(sqr(m->slideVelX) + sqr(m->slideVelZ));
-    newSpeed = max(oldSpeed - (m->forwardVel >= 0.0f ? 1.0f : 1.1f) * m->floorNormal.y, 0.0f);
-    m->slideVelX *= newSpeed / oldSpeed;
-    m->slideVelZ *= newSpeed / oldSpeed;
+    newSpeed = oldSpeed - (m->forwardVel >= 0.0f ? 1.0f : 1.1f) * m->floorNormal.y;
 
-    m->vel[0] = m->slideVelX;
-    m->vel[2] = m->slideVelZ;
-    m->slideYaw = atan2s(m->slideVelZ, m->slideVelX);
-    m->forwardVel = newSpeed * coss(m->faceAngle[1] - m->slideYaw);
+    if (newSpeed > 0.0f) {
+        m->slideVelX *= newSpeed / oldSpeed;
+        m->slideVelZ *= newSpeed / oldSpeed;
+        m->vel[0] = m->slideVelX;
+        m->vel[2] = m->slideVelZ;
+        m->forwardVel = newSpeed * coss(m->faceAngle[1] - m->slideYaw);
+    } else {
+        m->slideVelX = 0.0f;
+        m->slideVelZ = 0.0f;
+        m->vel[0] = 0.0f;
+        m->vel[2] = 0.0f;
+        m->forwardVel = 0.0f;
+    }
 #endif
 
 #if 0
