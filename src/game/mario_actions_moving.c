@@ -895,9 +895,11 @@ s32 act_hold_walking(struct MarioState *m) {
         return set_jumping_action(m, ACT_HOLD_JUMP, 0);
     }
 
+#if 0
     if (m->input & INPUT_UNKNOWN_5) {
         return set_mario_action(m, ACT_HOLD_DECELERATING, 0);
     }
+#endif
 
     if (m->input & INPUT_Z_PRESSED) {
         return drop_and_set_mario_action(m, ACT_CROUCH_SLIDE, 0);
@@ -905,7 +907,9 @@ s32 act_hold_walking(struct MarioState *m) {
 
     m->intendedMag *= 0.4f;
 
-    update_walking_speed(m);
+    if (update_walking_speed(m)) {
+        return set_mario_action(m, ACT_HOLD_IDLE, 0);
+    }
 
     switch (perform_ground_step(m)) {
         case GROUND_STEP_LEFT_GROUND:
