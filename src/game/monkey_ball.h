@@ -3,7 +3,7 @@
 
 #include "engine/math_util.h"
 
-#define BALL_STOP_SPEED 4.0f
+#define BALL_STOP_SPEED 8.0f
 
 void ball_update_world_tilt(struct MarioState *m);
 void ball_update_floor_normal(struct MarioState *m, struct Surface *floor);
