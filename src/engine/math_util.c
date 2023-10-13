@@ -151,12 +151,15 @@ void *vec3f_normalize(Vec3f dest) {
 void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
     f32 angle = acosf(vec3f_dot(a, b));
     f32 angleSin = sinf(angle);
-    f32 lerpA = sinf((1.0f - t) * angle) / angleSin;
-    f32 lerpB = sinf((       t) * angle) / angleSin;
-
-    dest[0] = a[0] * lerpA + b[0] * lerpB;
-    dest[1] = a[1] * lerpA + b[1] * lerpB;
-    dest[2] = a[2] * lerpA + b[2] * lerpB;
+    if (angleSin != 0.0f) {
+        f32 lerpA = sinf((1.0f - t) * angle) / angleSin;
+        f32 lerpB = sinf((       t) * angle) / angleSin;
+        dest[0] = a[0] * lerpA + b[0] * lerpB;
+        dest[1] = a[1] * lerpA + b[1] * lerpB;
+        dest[2] = a[2] * lerpA + b[2] * lerpB;
+    } else {
+        vec3f_copy(dest, b);
+    }
     return &dest; //! warning: function returns address of local variable
 }
 
@@ -164,13 +167,16 @@ void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
 void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate) {
     f32 angle = acosf(vec3f_dot(a, b));
     f32 angleSin = sinf(angle);
-    f32 angleT = min(rate, angle);
-    f32 lerpA = sinf(angle - angleT) / angleSin;
-    f32 lerpB = sinf(        angleT) / angleSin;
-
-    dest[0] = a[0] * lerpA + b[0] * lerpB;
-    dest[1] = a[1] * lerpA + b[1] * lerpB;
-    dest[2] = a[2] * lerpA + b[2] * lerpB;
+    if (angleSin != 0.0f) {
+        f32 angleT = min(rate, angle);
+        f32 lerpA = sinf(angle - angleT) / angleSin;
+        f32 lerpB = sinf(        angleT) / angleSin;
+        dest[0] = a[0] * lerpA + b[0] * lerpB;
+        dest[1] = a[1] * lerpA + b[1] * lerpB;
+        dest[2] = a[2] * lerpA + b[2] * lerpB;
+    } else {
+        vec3f_copy(dest, b);
+    }
     return &dest; //! warning: function returns address of local variable
 }
 
