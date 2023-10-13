@@ -3,8 +3,9 @@
 #include <string.h>
 
 #include "sm64.h"
-
-#if defined(TARGET_N64)
+#include "game_init.h"
+#include "main.h"
+#include "buffers/framebuffers.h"
 
 #include "lib/src/printf.h"
 #include "lib/src/osint.h"
@@ -60,6 +61,7 @@ struct {
     OSMesgQueue mesgQueue;
     OSMesg mesg;
     u16 *framebuffer;
+    u16 *copybuffer;
     u16 width;
     u16 height;
 } gCrashScreen;
@@ -178,6 +180,52 @@ void crash_screen_print_fpcsr(u32 fpcsr) {
     }
 }
 
+const Gfx dl_fullscreen_begin[] = {
+    gsDPPipeSync(),
+    gsSPClearGeometryMode(0xFFFFFFFF),
+    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+    gsDPSetCombineMode(G_CC_DECALRGB, G_CC_DECALRGB),
+    gsDPSetTextureLOD(G_TL_TILE),
+    gsDPSetTextureLUT(G_TT_NONE),
+    gsDPSetTextureDetail(G_TD_CLAMP),
+    gsDPSetTexturePersp(G_TP_NONE),
+    gsDPSetTextureFilter(G_TF_POINT),
+    gsDPSetTextureConvert(G_TC_FILT),
+    gsDPSetCombineKey(G_CK_NONE),
+    gsDPSetAlphaCompare(G_AC_NONE),
+    gsDPSetCycleType(G_CYC_COPY),
+    gsDPSetRenderMode(G_RM_NOOP, G_RM_NOOP2),
+    gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON),
+    gsSPEndDisplayList(),
+};
+
+void draw_framebuffer_quad(void) {
+    u32 y;
+
+    osWritebackDCacheAll();
+
+    gSPDisplayList(gDisplayListHead++, dl_fullscreen_begin);
+    gDPSetColorImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH,
+                     VIRTUAL_TO_PHYSICAL(gCrashScreen.copybuffer));
+
+    for (y = 0; y < SCREEN_HEIGHT; y += 5) {
+        u32 uls = 0;
+        u32 ult = y;
+        u32 lrs = SCREEN_WIDTH - 1;
+        u32 lrt = y + 4;
+
+        gDPLoadTextureTile(gDisplayListHead++, gCrashScreen.framebuffer, G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                           SCREEN_WIDTH, SCREEN_HEIGHT, uls, ult, lrs, lrt, 0, G_TX_NOMIRROR,
+                           G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+        gSPTextureRectangle(gDisplayListHead++, uls << 2, ult << 2, lrs << 2, lrt << 2,
+                            G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
+    }
+
+    gDPFullSync(gDisplayListHead++);
+    gSPEndDisplayList(gDisplayListHead++);
+}
+
 void draw_crash_screen(OSThread *thread) {
     s16 cause;
     __OSThreadContext *tc = &thread->context;
@@ -245,7 +293,7 @@ void draw_crash_screen(OSThread *thread) {
     osWritebackDCacheAll();
 #endif
     osViBlack(FALSE);
-    osViSwapBuffer(gCrashScreen.framebuffer);
+    draw_framebuffer_quad();
 }
 
 OSThread *get_crashed_thread(void) {
@@ -262,6 +310,8 @@ OSThread *get_crashed_thread(void) {
     return NULL;
 }
 
+void create_gfx_task_structure(void);
+
 void thread2_crash_screen(UNUSED void *arg) {
     OSMesg mesg;
     OSThread *thread;
@@ -272,33 +322,25 @@ void thread2_crash_screen(UNUSED void *arg) {
         osRecvMesg(&gCrashScreen.mesgQueue, &mesg, 1);
         thread = get_crashed_thread();
     } while (thread == NULL);
+
+    gCrashScreen.framebuffer = gFramebuffers[sRenderingFramebuffer];
+    gCrashScreen.copybuffer = gFramebuffers[sRenderedFramebuffer];
+
+    select_gfx_pool();
     draw_crash_screen(thread);
-    for (;;) {
+    create_gfx_task_structure();
+    osSpTaskStart(&gGfxPool->spTask.task);
+    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
+    osViSwapBuffer(gCrashScreen.copybuffer);
+    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
+
+    while (TRUE) {
     }
 }
 
-void crash_screen_set_framebuffer(u16 *framebuffer, u16 width, u16 height) {
-#ifdef VERSION_EU
-    gCrashScreen.framebuffer = framebuffer;
-#else
-    gCrashScreen.framebuffer = (u16 *)((uintptr_t)framebuffer | 0xa0000000);
-#endif
-    gCrashScreen.width = width;
-    gCrashScreen.height = height;
-}
-
 void crash_screen_init(void) {
-#ifdef VERSION_EU
-    gCrashScreen.framebuffer = (u16 *) (osMemSize | 0x80000000) - SCREEN_WIDTH * SCREEN_HEIGHT;
-#else
-    gCrashScreen.framebuffer = (u16 *) (osMemSize | 0xA0000000) - SCREEN_WIDTH * SCREEN_HEIGHT;
-#endif
     gCrashScreen.width = SCREEN_WIDTH;
-#ifdef VERSION_EU
     gCrashScreen.height = SCREEN_HEIGHT;
-#else
-    gCrashScreen.height = 0x10;
-#endif
     osCreateMesgQueue(&gCrashScreen.mesgQueue, &gCrashScreen.mesg, 1);
     osCreateThread(
         &gCrashScreen.thread, 2, thread2_crash_screen, NULL,
@@ -311,5 +353,3 @@ void crash_screen_init(void) {
     );
     osStartThread(&gCrashScreen.thread);
 }
-
-#endif
