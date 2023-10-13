@@ -538,11 +538,7 @@ void anim_and_audio_for_walk(struct MarioState *m) {
     s16 targetPitch = 0;
     f32 val04;
 
-    val04 = m->intendedMag > m->forwardVel ? m->intendedMag : m->forwardVel;
-
-    if (val04 < 4.0f) {
-        val04 = 4.0f;
-    }
+    val04 = max(4.0f, max(m->intendedMag, m->forwardVel >= 0.0f ? m->forwardVel : -m->forwardVel));
 
     if (m->quicksandDepth > 50.0f) {
         val14 = (s32)(val04 / 4.0f * 0x10000);
