@@ -941,13 +941,17 @@ s32 act_hold_heavy_walking(struct MarioState *m) {
         return drop_and_set_mario_action(m, ACT_BEGIN_SLIDING, 0);
     }
 
+#if 0
     if (m->input & INPUT_UNKNOWN_5) {
         return set_mario_action(m, ACT_HOLD_HEAVY_IDLE, 0);
     }
+#endif
 
     m->intendedMag *= 0.1f;
 
-    update_walking_speed(m);
+    if (update_walking_speed(m)) {
+        return set_mario_action(m, ACT_HOLD_HEAVY_IDLE, 0);
+    }
 
     switch (perform_ground_step(m)) {
         case GROUND_STEP_LEFT_GROUND:
