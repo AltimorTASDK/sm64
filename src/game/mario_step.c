@@ -337,7 +337,7 @@ s32 perform_ground_step(struct MarioState *m) {
         moveDelta[2] = m->floor->normal.y * (m->vel[2] / 4.0f);
         moveDelta[1] = 0.0f;
 
-        ball_rotate_vector(m, moveDelta, moveDelta);
+        ball_rotate_vector(m, moveDelta, moveDelta, TRUE);
 
         intendedPos[0] = m->pos[0] + moveDelta[0];
         intendedPos[1] = m->pos[1] + moveDelta[1];
@@ -640,7 +640,7 @@ s32 perform_air_step(struct MarioState *m, u32 stepArg) {
         moveDelta[1] = m->vel[1] / 4.0f;
         moveDelta[2] = m->vel[2] / 4.0f;
 
-        ball_rotate_vector(m, moveDelta, moveDelta);
+        ball_rotate_vector(m, moveDelta, moveDelta, TRUE);
 
         intendedPos[0] = m->pos[0] + moveDelta[0];
         intendedPos[1] = m->pos[1] + moveDelta[1];

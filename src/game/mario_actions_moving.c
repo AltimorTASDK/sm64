@@ -431,6 +431,7 @@ s32 update_decelerating_speed(struct MarioState *m) {
 }
 
 void update_walking_speed(struct MarioState *m) {
+#if 0
     f32 maxTargetSpeed;
     f32 targetSpeed;
 
@@ -460,10 +461,14 @@ void update_walking_speed(struct MarioState *m) {
 
     m->faceAngle[1] = approach_angle(m->faceAngle[1], m->intendedYaw, 0x800);
     apply_slope_accel(m);
+#endif
 }
 
 s32 should_begin_sliding(struct MarioState *m) {
-#if 0
+    if (m->input & INPUT_NONZERO_ANALOG) {
+        return TRUE;
+    }
+
     if (m->input & INPUT_ABOVE_SLIDE) {
         s32 slideLevel = (m->area->terrainType & TERRAIN_MASK) == TERRAIN_SLIDE;
         s32 movingBackward = m->forwardVel <= -1.0f;
@@ -474,9 +479,6 @@ s32 should_begin_sliding(struct MarioState *m) {
     }
 
     return FALSE;
-#endif
-
-    return m->input & INPUT_NONZERO_ANALOG;
 }
 
 s32 analog_stick_held_back(struct MarioState *m) {

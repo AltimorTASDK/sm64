@@ -184,11 +184,14 @@ s32 check_horizontal_wind(struct MarioState *m) {
 }
 
 void update_air_with_turn(struct MarioState *m) {
+#if 0
     f32 dragThreshold;
     s16 intendedDYaw;
     f32 intendedMag;
+#endif
 
     if (!check_horizontal_wind(m)) {
+#if 0
         dragThreshold = m->action == ACT_LONG_JUMP ? 48.0f : 32.0f;
         m->forwardVel = approach_f32(m->forwardVel, 0.0f, 0.35f, 0.35f);
 
@@ -207,6 +210,7 @@ void update_air_with_turn(struct MarioState *m) {
         if (m->forwardVel < -16.0f) {
             m->forwardVel += 2.0f;
         }
+#endif
 
         m->vel[0] = m->slideVelX = m->forwardVel * sins(m->faceAngle[1]);
         m->vel[2] = m->slideVelZ = m->forwardVel * coss(m->faceAngle[1]);
@@ -215,11 +219,14 @@ void update_air_with_turn(struct MarioState *m) {
 
 void update_air_without_turn(struct MarioState *m) {
     f32 sidewaysSpeed = 0.0f;
+#if 0
     f32 dragThreshold;
     s16 intendedDYaw;
     f32 intendedMag;
+#endif
 
     if (!check_horizontal_wind(m)) {
+#if 0
         dragThreshold = m->action == ACT_LONG_JUMP ? 48.0f : 32.0f;
         m->forwardVel = approach_f32(m->forwardVel, 0.0f, 0.35f, 0.35f);
 
@@ -238,6 +245,7 @@ void update_air_without_turn(struct MarioState *m) {
         if (m->forwardVel < -16.0f) {
             m->forwardVel += 2.0f;
         }
+#endif
 
         m->slideVelX = m->forwardVel * sins(m->faceAngle[1]);
         m->slideVelZ = m->forwardVel * coss(m->faceAngle[1]);

@@ -574,6 +574,10 @@ s32 mario_facing_downhill(struct MarioState *m, s32 turnYaw) {
 u32 mario_floor_is_slippery(struct MarioState *m) {
     f32 normY;
 
+    if (m->input & INPUT_NONZERO_ANALOG) {
+        return TRUE;
+    }
+
     if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SLIDE
         && m->floorNormal.y < COS_1) { // ~cos(1 deg)
         return TRUE;
@@ -605,6 +609,10 @@ u32 mario_floor_is_slippery(struct MarioState *m) {
  */
 s32 mario_floor_is_slope(struct MarioState *m) {
     f32 normY;
+
+    if (m->input & INPUT_NONZERO_ANALOG) {
+        return TRUE;
+    }
 
     if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SLIDE
         && m->floorNormal.y < COS_1) { // ~cos(1 deg)
@@ -638,6 +646,10 @@ s32 mario_floor_is_slope(struct MarioState *m) {
 s32 mario_floor_is_steep(struct MarioState *m) {
     f32 normY;
     s32 result = FALSE;
+
+    if (m->input & INPUT_NONZERO_ANALOG) {
+        return TRUE;
+    }
 
     // Interestingly, this function does not check for the
     // slide terrain type. This means that steep behavior persists for
