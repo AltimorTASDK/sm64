@@ -58,7 +58,9 @@ void ball_update_surface_normals(struct MarioState *m) {
 }
 
 void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
-    Vec3f forward, right, up;
+    Vec3f forward;
+    Vec3f right;
+    Vec3f up;
     f32 xzLength = sqrtf(v[0] * v[0] + v[2] * v[2]);
 
     if (invert) {
