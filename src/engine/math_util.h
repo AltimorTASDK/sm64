@@ -55,6 +55,10 @@ extern f32 gCosineTable[];
 #define approach_angle(current, target, rate) \
     ((target) - approach_s32((s16)((target) - (current)), 0, (rate), (rate)))
 
+#define vec3f_dot(a, b) ((a)[0] * (b)[0] + (a)[1] * (b)[1] + (a)[2] * (b)[2])
+
+#define vec3f_length(x) (sqrtf(vec3f_dot(x, x)))
+
 void *vec3f_copy(Vec3f dest, Vec3f src);
 void *vec3f_set(Vec3f dest, f32 x, f32 y, f32 z);
 void *vec3f_add(Vec3f dest, Vec3f a);
@@ -69,6 +73,9 @@ void *vec3f_to_vec3s(Vec3s dest, Vec3f a);
 void *find_vector_perpendicular_to_plane(Vec3f dest, Vec3f a, Vec3f b, Vec3f c);
 void *vec3f_cross(Vec3f dest, Vec3f a, Vec3f b);
 void *vec3f_normalize(Vec3f dest);
+void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t);
+void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate);
+void *vec3f_right(Vec3f dest, Vec3f v);
 void mtxf_copy(Mat4 dest, Mat4 src);
 void mtxf_identity(Mat4 mtx);
 void mtxf_translate(Mat4 dest, Vec3f b);
@@ -89,7 +96,9 @@ void vec3f_set_dist_and_angle(Vec3f from, Vec3f to, f32  dist, s16  pitch, s16  
 s32 approach_s32(s32 current, s32 target, s32 inc, s32 dec);
 f32 approach_f32(f32 current, f32 target, f32 inc, f32 dec);
 s16 atan2s(f32 y, f32 x);
+s16 acoss(f32 x);
 f32 atan2f(f32 a, f32 b);
+f32 acosf(f32 x);
 void spline_get_weights(Vec4f result, f32 t, UNUSED s32 c);
 void anim_spline_init(Vec4s *keyFrames);
 s32 anim_spline_poll(Vec3f result);

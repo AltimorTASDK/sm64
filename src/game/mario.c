@@ -32,6 +32,7 @@
 #include "save_file.h"
 #include "sound_init.h"
 #include "rumble_init.h"
+#include "monkey_ball.h"
 
 u32 unused80339F10;
 u8 unused80339F1C[20];
@@ -1698,6 +1699,8 @@ void func_sh_8025574C(void) {
 s32 execute_mario_action(UNUSED struct Object *o) {
     s32 inLoop = TRUE;
 
+    ball_update_world_tilt(gMarioState);
+
     if (gMarioState->action) {
         gMarioState->marioObj->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
         mario_reset_bodystate(gMarioState);
@@ -1865,6 +1868,8 @@ void init_mario(void) {
 
         capObject->oMoveAngleYaw = 0;
     }
+
+    vec3f_set(gMarioState->worldUp, 0.0f, 1.0f, 0.0f);
 }
 
 void init_mario_from_save_file(void) {

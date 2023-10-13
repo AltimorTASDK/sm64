@@ -147,6 +147,44 @@ void *vec3f_normalize(Vec3f dest) {
     return &dest; //! warning: function returns address of local variable
 }
 
+/// Spherical lerp of two unit vectors
+void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
+    f32 angle = acosf(vec3f_dot(a, b));
+    f32 angleSin = sinf(angle);
+    f32 lerpA = sinf((1.0f - t) * angle) / angleSin;
+    f32 lerpB = sinf((       t) * angle) / angleSin;
+
+    dest[0] = a[0] * lerpA + b[0] * lerpB;
+    dest[1] = a[1] * lerpA + b[1] * lerpB;
+    dest[2] = a[2] * lerpA + b[2] * lerpB;
+    return &dest; //! warning: function returns address of local variable
+}
+
+/// Spherical lerp of two unit vectors using a rate in radians
+void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate) {
+    f32 angle = acosf(vec3f_dot(a, b));
+    f32 angleSin = sinf(angle);
+    f32 angleT = min(rate, angle);
+    f32 lerpA = sinf(angle - angleT) / angleSin;
+    f32 lerpB = sinf(        angleT) / angleSin;
+
+    dest[0] = a[0] * lerpA + b[0] * lerpB;
+    dest[1] = a[1] * lerpA + b[1] * lerpB;
+    dest[2] = a[2] * lerpA + b[2] * lerpB;
+    return &dest; //! warning: function returns address of local variable
+}
+
+/// Get a right-hand perpendicular vector in the XZ plane
+void *vec3f_right(Vec3f dest, Vec3f v) {
+    f32 xzLength = sqrtf(v[0] * v[0] + v[2] * v[2]);
+    if (xzLength != 0.0f) {
+        vec3f_set(dest, -v[2] / xzLength, 0.0f, v[0] / xzLength);
+    } else {
+        vec3f_set(dest, 0.0f, 0.0f, 1.0f);
+    }
+    return &dest; //! warning: function returns address of local variable
+}
+
 #pragma GCC diagnostic pop
 
 /// Copy matrix 'src' to 'dest'
@@ -749,10 +787,24 @@ s16 atan2s(f32 y, f32 x) {
 }
 
 /**
+ * Compute the acos as an s16 by calling atan2s with a trig identity.
+ */
+s16 acoss(f32 x) {
+    return atan2s(sqrtf(1 - sqr(x)), x);
+}
+
+/**
  * Compute the atan2 in radians by calling atan2s and converting the result.
  */
 f32 atan2f(f32 y, f32 x) {
     return (f32) atan2s(y, x) * M_PI / 0x8000;
+}
+
+/**
+ * Compute the acos in radians by calling acoss and converting the result.
+ */
+f32 acosf(f32 x) {
+    return (f32) acoss(x) * M_PI / 0x8000;
 }
 
 #define CURVE_BEGIN_1 1

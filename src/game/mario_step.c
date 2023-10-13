@@ -8,6 +8,7 @@
 #include "game_init.h"
 #include "interaction.h"
 #include "mario_step.h"
+#include "monkey_ball.h"
 
 static s16 sMovingSandSpeeds[] = { 12, 8, 4, 0 };
 
@@ -325,9 +326,16 @@ s32 perform_ground_step(struct MarioState *m) {
     Vec3f intendedPos;
 
     for (i = 0; i < 4; i++) {
-        intendedPos[0] = m->pos[0] + m->floor->normal.y * (m->vel[0] / 4.0f);
-        intendedPos[2] = m->pos[2] + m->floor->normal.y * (m->vel[2] / 4.0f);
-        intendedPos[1] = m->pos[1];
+        Vec3f moveDelta;
+        moveDelta[0] = m->floor->normal.y * (m->vel[0] / 4.0f);
+        moveDelta[2] = m->floor->normal.y * (m->vel[2] / 4.0f);
+        moveDelta[1] = 0.0f;
+
+        ball_rotate_vector(m, moveDelta);
+
+        intendedPos[0] = m->pos[0] + moveDelta[0];
+        intendedPos[1] = m->pos[1] + moveDelta[1];
+        intendedPos[2] = m->pos[2] + moveDelta[2];
 
         stepResult = perform_ground_quarter_step(m, intendedPos);
         if (stepResult == GROUND_STEP_LEFT_GROUND || stepResult == GROUND_STEP_HIT_WALL_STOP_QSTEPS) {
@@ -616,9 +624,16 @@ s32 perform_air_step(struct MarioState *m, u32 stepArg) {
     m->wall = NULL;
 
     for (i = 0; i < 4; i++) {
-        intendedPos[0] = m->pos[0] + m->vel[0] / 4.0f;
-        intendedPos[1] = m->pos[1] + m->vel[1] / 4.0f;
-        intendedPos[2] = m->pos[2] + m->vel[2] / 4.0f;
+        Vec3f moveDelta;
+        moveDelta[0] = m->vel[0] / 4.0f;
+        moveDelta[1] = m->vel[1] / 4.0f;
+        moveDelta[2] = m->vel[2] / 4.0f;
+
+        ball_rotate_vector(m, moveDelta);
+
+        intendedPos[0] = m->pos[0] + moveDelta[0];
+        intendedPos[1] = m->pos[1] + moveDelta[1];
+        intendedPos[2] = m->pos[2] + moveDelta[2];
 
         quarterStepResult = perform_air_quarter_step(m, intendedPos, stepArg);
 
