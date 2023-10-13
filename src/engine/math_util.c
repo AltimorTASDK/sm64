@@ -149,7 +149,7 @@ void *vec3f_normalize(Vec3f dest) {
 
 /// Spherical lerp of two unit vectors
 void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
-    f32 angle = acosf(vec3f_dot(a, b));
+    f32 angle = acosf(min(max(vec3f_dot(a, b), -1.0f), 1.0f));
     f32 angleSin = sinf(angle);
     if (angleSin != 0.0f) {
         f32 lerpA = sinf((1.0f - t) * angle) / angleSin;
@@ -165,7 +165,7 @@ void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
 
 /// Spherical lerp of two unit vectors using a rate in radians
 void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate) {
-    f32 angle = acosf(vec3f_dot(a, b));
+    f32 angle = acosf(min(max(vec3f_dot(a, b), -1.0f), 1.0f));
     f32 angleSin = sinf(angle);
     if (angleSin != 0.0f) {
         f32 angleT = min(rate, angle);
