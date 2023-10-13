@@ -1515,9 +1515,11 @@ s32 act_crouch_slide(struct MarioState *m) {
         return set_jumping_action(m, ACT_JUMP, 0);
     }
 
+#if 0
     if (m->input & INPUT_FIRST_PERSON) {
         return set_mario_action(m, ACT_BRAKING, 0);
     }
+#endif
 
     cancel = common_slide_action_with_jump(m, ACT_CROUCHING, ACT_JUMP, ACT_FREEFALL,
                                            MARIO_ANIM_START_CROUCHING);
