@@ -808,7 +808,7 @@ s32 act_walking(struct MarioState *m) {
     vec3f_copy(startPos, m->pos);
 
     if (update_walking_speed(m)) {
-        return set_mario_action(m, ACT_BRAKING_STOP, 0);
+        return set_mario_action(m, ACT_IDLE, 0);
     }
 
     switch (perform_ground_step(m)) {
