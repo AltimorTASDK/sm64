@@ -4,9 +4,10 @@
 
 #include "sm64.h"
 
-#if defined(TARGET_N64) && (defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN))
+#if defined(TARGET_N64)
 
 #include "lib/src/printf.h"
+#include "lib/src/osint.h"
 
 u8 gCrashScreenCharToGlyph[128] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -19,7 +20,7 @@ u8 gCrashScreenCharToGlyph[128] = {
 
 // A height of seven pixels for each Character * nine rows of characters + one row unused.
 u32 gCrashScreenFont[7 * 9 + 1] = {
-    #include "textures/crash_screen/crash_screen_font.ia1.inc.c"
+    #include "textures/crash_custom/crash_screen_font.ia1.inc.c"
 };
 
 
@@ -250,7 +251,7 @@ void draw_crash_screen(OSThread *thread) {
 OSThread *get_crashed_thread(void) {
     OSThread *thread;
 
-    thread = __osGetCurrFaultedThread();
+    thread = __osActiveQueue;
     while (thread->priority != -1) {
         if (thread->priority > OS_PRIORITY_IDLE && thread->priority < OS_PRIORITY_APPMAX
             && (thread->flags & 3) != 0) {
