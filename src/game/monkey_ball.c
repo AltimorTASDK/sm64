@@ -32,6 +32,12 @@ s32 ball_allow_tilt(struct MarioState *m) {
         return FALSE;
     } else if (m->action == ACT_RELEASING_BOWSER) {
         return FALSE;
+    } else if (m->action == ACT_READING_AUTOMATIC_DIALOG) {
+        return FALSE;
+    } else if (m->action == ACT_READING_NPC_DIALOG) {
+        return FALSE;
+    } else if (m->action == ACT_READING_SIGN) {
+        return FALSE;
     } else {
         return TRUE;
     }
