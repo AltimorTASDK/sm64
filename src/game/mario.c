@@ -1183,10 +1183,12 @@ s32 transition_submerged_to_walking(struct MarioState *m) {
 
     vec3s_set(m->angleVel, 0, 0, 0);
 
+    m->vel[1] = 62.0f;
+
     if (m->heldObj == NULL) {
-        return set_mario_action(m, ACT_WALKING, 0);
+        return set_mario_action(m, ACT_WATER_JUMP, 0);
     } else {
-        return set_mario_action(m, ACT_HOLD_WALKING, 0);
+        return set_mario_action(m, ACT_HOLD_WATER_JUMP, 0);
     }
 }
 
