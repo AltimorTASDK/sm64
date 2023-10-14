@@ -1667,7 +1667,7 @@ u32 interact_grabbable(struct MarioState *m, u32 interactType, struct Object *o)
     return FALSE;
 }
 
-u32 mario_can_talk(struct MarioState *m, u32 arg) {
+u32 mario_can_talk(struct MarioState *m, UNUSED u32 arg) {
     return ball_can_interact(m);
 }
 
