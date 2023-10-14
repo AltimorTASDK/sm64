@@ -669,7 +669,6 @@ void unused_set_camera_pitch_shake_env(s16 shake) {
 BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 *focOff, f32 focMul, f32 focBound) {
     f32 floorHeight = sMarioGeometry.currFloorHeight;
     f32 waterHeight;
-    UNUSED u8 filler[4];
 
     if (!(sMarioCamState->action & ACT_FLAG_METAL_WATER)) {
         //! @bug this should use sMarioGeometry.waterHeight
@@ -684,6 +683,10 @@ BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 
             posBound = 1200;
         }
     }
+
+    // Attempt to adjust for effectively increased distance to ground when tilting
+    posBound *= gMarioState->worldUp[1];
+    focBound *= gMarioState->worldUp[1];
 
     *posOff = (floorHeight - sMarioCamState->pos[1]) * posMul;
 
@@ -913,7 +916,8 @@ s32 update_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     f32 baseDist = 1000.f * BALL_CAM_DISTANCE_MUL + BALL_CAM_DISTANCE_ADD;
 
     sAreaYaw = camYaw - sModeOffsetYaw;
-    calc_y_to_curr_floor(&posY, 1.f, 200.f, &focusY, 0.9f, 200.f);
+    calc_y_to_curr_floor(&posY, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focusY, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     focus_on_mario(focus, pos, posY + yOff, focusY + yOff, sLakituDist + baseDist, pitch, camYaw);
     camYaw = find_in_bounds_yaw_wdw_bob_thi(pos, focus, camYaw);
 
@@ -935,7 +939,8 @@ s32 update_8_directions_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     f32 baseDist = 1000.f * BALL_CAM_DISTANCE_MUL + BALL_CAM_DISTANCE_ADD;
 
     sAreaYaw = camYaw;
-    calc_y_to_curr_floor(&posY, 1.f, 200.f, &focusY, 0.9f, 200.f);
+    calc_y_to_curr_floor(&posY, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focusY, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     focus_on_mario(focus, pos, posY + yOff, focusY + yOff, sLakituDist + baseDist, pitch, camYaw);
     pan_ahead_of_player(c);
     if (gCurrLevelArea == AREA_DDD_SUB) {
@@ -1212,7 +1217,8 @@ s32 update_outward_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     f32 focusY;
 
     sAreaYaw = camYaw - sModeOffsetYaw - DEGREES(180);
-    calc_y_to_curr_floor(&posY, 1.f, 200.f, &focusY, 0.9f, 200.f);
+    calc_y_to_curr_floor(&posY, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focusY, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     focus_on_mario(focus, pos, posY + yOff, focusY + yOff, sLakituDist + baseDist, pitch, camYaw);
 
     return camYaw;
@@ -1297,7 +1303,8 @@ s32 update_parallel_tracking_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
 
     distThresh = sParTrackPath[sParTrackIndex].distThresh;
     zoom = sParTrackPath[sParTrackIndex].zoom;
-    calc_y_to_curr_floor(&marioFloorDist, 1.f, 200.f, &marioFloorDist, 0.9f, 200.f);
+    calc_y_to_curr_floor(&marioFloorDist, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &marioFloorDist, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
 
     marioPos[0] = sMarioCamState->pos[0];
     // Mario's y pos + ~Mario's height + Mario's height above the floor
@@ -1479,6 +1486,8 @@ s32 update_fixed_camera(struct Camera *c, Vec3f focus, UNUSED Vec3f pos) {
     play_camera_buzz_if_cdown();
 
     calc_y_to_curr_floor(&focusFloorOff, 1.f, 200.f, &focusFloorOff, 0.9f, 200.f);
+    calc_y_to_curr_floor(&focusFloorOff, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focusFloorOff, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     vec3f_copy(focus, sMarioCamState->pos);
     focus[1] += focusFloorOff + 125.f;
     vec3f_get_dist_and_angle(focus, c->pos, &distCamToFocus, &faceAngle[0], &faceAngle[1]);
@@ -2188,7 +2197,8 @@ s16 update_default_camera(struct Camera *c) {
         c->yaw = yaw;
     }
 
-    calc_y_to_curr_floor(&posHeight, 1, 200, &focHeight, 0.9f, 200);
+    calc_y_to_curr_floor(&posHeight, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focHeight, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     vec3f_copy(cPos, c->pos);
     avoidStatus = rotate_camera_around_walls(c, cPos, &avoidYaw, 0x600);
     // If a wall is blocking the view of Mario, then rotate in the calculated direction
@@ -2439,7 +2449,8 @@ s32 update_spiral_stairs_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     vec3f_set(sFixedModeBasePosition, -1280.f, 614.f, 1740.f);
 
     // Focus on Mario, and move the focus up the staircase with him
-    calc_y_to_curr_floor(&focusHeight, 1.f, 200.f, &focusHeight, 0.9f, 200.f);
+    calc_y_to_curr_floor(&focusHeight, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focusHeight, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     focus[0] = sMarioCamState->pos[0];
     focY = sMarioCamState->pos[1] + 125.f + focusHeight;
     focus[2] = sMarioCamState->pos[2];
@@ -5317,7 +5328,8 @@ void set_focus_rel_mario(struct Camera *c, f32 leftRight, f32 yOff, f32 forwBack
     UNUSED u16 unused;
     f32 focFloorYOff;
 
-    calc_y_to_curr_floor(&focFloorYOff, 1.f, 200.f, &focFloorYOff, 0.9f, 200.f);
+    calc_y_to_curr_floor(&focFloorYOff, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                         &focFloorYOff, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     yaw = sMarioCamState->faceAngle[1] + yawOff;
     c->focus[2] = sMarioCamState->pos[2] + forwBack * coss(yaw) - leftRight * sins(yaw);
     c->focus[0] = sMarioCamState->pos[0] + forwBack * sins(yaw) + leftRight * coss(yaw);

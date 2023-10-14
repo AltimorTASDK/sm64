@@ -17,6 +17,15 @@
 #define BALL_CAM_HEIGHT 0.0f
 #define BALL_CAM_PITCH  DEGREES(0)
 
+// Adjust nearz so it isn't hit when the camera is near the ground
+#define BALL_MAX_NEARZ 15
+
+// calc_y_to_curr_floor parameters
+#define BALL_CAM_POS_MUL   1.0f
+#define BALL_CAM_POS_BOUND 200.0f
+#define BALL_CAM_FOC_MUL   0.9f
+#define BALL_CAM_FOC_BOUND 200.0f
+
 struct GraphNodeCamera;
 struct MarioState;
 struct Surface;

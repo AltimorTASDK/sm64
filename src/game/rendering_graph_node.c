@@ -244,6 +244,7 @@ static void geo_process_perspective(struct GraphNodePerspective *node) {
     if (node->fnNode.node.children != NULL) {
         u16 perspNorm;
         Mtx *mtx = alloc_display_list(sizeof(*mtx));
+        f32 near = min(node->near, BALL_MAX_NEARZ);
 
 #ifdef VERSION_EU
         f32 aspect = ((f32) gCurGraphNodeRoot->width / (f32) gCurGraphNodeRoot->height) * 1.1f;
@@ -251,7 +252,7 @@ static void geo_process_perspective(struct GraphNodePerspective *node) {
         f32 aspect = (f32) gCurGraphNodeRoot->width / (f32) gCurGraphNodeRoot->height;
 #endif
 
-        guPerspective(mtx, &perspNorm, node->fov, aspect, node->near, node->far, 1.0f);
+        guPerspective(mtx, &perspNorm, node->fov, aspect, near, node->far, 1.0f);
         gSPPerspNormalize(gDisplayListHead++, perspNorm);
 
         gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -1084,10 +1085,12 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
             geo_process_node_and_siblings(node->node.children);
         }
         gCurGraphNodeRoot = NULL;
+#if 0
         if (gShowDebugText) {
-            print_text_fmt_int(180, 36, "MEM %d",
+            print_text_fmt_int(180, DEBUG_TEXT_Y(MEM), "MEM %d",
                                gDisplayListHeap->totalSpace - gDisplayListHeap->usedSpace);
         }
+#endif
         main_pool_free(gDisplayListHeap);
     }
 }
