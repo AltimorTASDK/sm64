@@ -386,19 +386,7 @@ void mario_retrieve_cap(void) {
 }
 
 u32 able_to_grab_object(struct MarioState *m, UNUSED struct Object *o) {
-    u32 action = m->action;
-
-    if (action == ACT_DIVE_SLIDE || action == ACT_DIVE) {
-        if (!(o->oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO)) {
-            return TRUE;
-        }
-    } else if (action == ACT_PUNCHING || action == ACT_MOVE_PUNCHING) {
-        if (m->actionArg < 2) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
+    return m->action == ACT_DIVE || ball_can_interact(m);
 }
 
 struct Object *mario_get_collided_object(struct MarioState *m, u32 interactType) {
