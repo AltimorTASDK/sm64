@@ -314,15 +314,14 @@ struct MarioState {
     /*0xC0*/ f32 quicksandDepth;
     /*0xC4*/ f32 gettingBlownGravity;
 
-    Vec3f worldUp;
-
     struct {
         f32 x;
         f32 y;
         f32 z;
     } floorNormal, wallNormal;
-
+    Vec3f worldUp;
     Mat4 tiltTransform;
+    s16 interactYaw;
 };
 
 #endif // TYPES_H
