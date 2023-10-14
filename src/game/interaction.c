@@ -1671,22 +1671,13 @@ u32 mario_can_talk(struct MarioState *m, UNUSED u32 arg) {
     return ball_can_interact(m);
 }
 
-#ifdef VERSION_JP
 #define READ_MASK (INPUT_B_PRESSED)
-#else
-#define READ_MASK (INPUT_B_PRESSED | INPUT_A_PRESSED)
-#endif
-
-#ifdef VERSION_JP
-#define SIGN_RANGE 0x38E3
-#else
-#define SIGN_RANGE 0x4000
-#endif
+#define TALK_ANGLE 0x38E3
 
 u32 check_read_sign(struct MarioState *m, struct Object *o) {
-    if ((m->input & READ_MASK) && mario_can_talk(m, 0) && object_facing_mario(m, o, SIGN_RANGE)) {
-        s16 facingDYaw = (s16)(o->oMoveAngleYaw + 0x8000) - m->faceAngle[1];
-        if (facingDYaw >= -SIGN_RANGE && facingDYaw <= SIGN_RANGE) {
+    if ((m->input & READ_MASK) && mario_can_talk(m, 0) && object_facing_mario(m, o, TALK_ANGLE)) {
+        s16 facingDYaw = (s16)(o->oMoveAngleYaw + 0x8000) - m->intendedYaw;
+        if (facingDYaw >= -TALK_ANGLE && facingDYaw <= TALK_ANGLE) {
             f32 targetX = o->oPosX + 105.0f * sins(o->oMoveAngleYaw);
             f32 targetZ = o->oPosZ + 105.0f * coss(o->oMoveAngleYaw);
 
@@ -1705,8 +1696,8 @@ u32 check_read_sign(struct MarioState *m, struct Object *o) {
 
 u32 check_npc_talk(struct MarioState *m, struct Object *o) {
     if ((m->input & READ_MASK) && mario_can_talk(m, 1)) {
-        s16 facingDYaw = mario_obj_angle_to_object(m, o) - m->faceAngle[1];
-        if (facingDYaw >= -0x4000 && facingDYaw <= 0x4000) {
+        s16 facingDYaw = mario_obj_angle_to_object(m, o) - m->intendedYaw;
+        if (facingDYaw >= -TALK_ANGLE && facingDYaw <= TALK_ANGLE) {
             o->oInteractStatus = INT_STATUS_INTERACTED;
 
             m->interactObj = o;
