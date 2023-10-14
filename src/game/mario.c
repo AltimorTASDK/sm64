@@ -939,6 +939,9 @@ static u32 set_mario_action_moving(struct MarioState *m, u32 action, UNUSED u32 
             break;
 
         case ACT_BEGIN_SLIDING:
+            m->slideVelX = m->vel[0];
+            m->slideVelZ = m->vel[2];
+
             if (mario_facing_downhill(m, FALSE)) {
                 action = ACT_BUTT_SLIDE;
             } else {
@@ -947,6 +950,9 @@ static u32 set_mario_action_moving(struct MarioState *m, u32 action, UNUSED u32 
             break;
 
         case ACT_HOLD_BEGIN_SLIDING:
+            m->slideVelX = m->vel[0];
+            m->slideVelZ = m->vel[2];
+
             if (mario_facing_downhill(m, FALSE)) {
                 action = ACT_HOLD_BUTT_SLIDE;
             } else {
