@@ -88,6 +88,9 @@ BAD_RETURN(s32) init_bully_collision_data(struct BullyCollisionData *data, f32 p
 }
 
 void mario_bonk_reflection(struct MarioState *m, u32 negateSpeed) {
+    m->faceAngle[1] = atan2s(m->vel[2], m->vel[0]);
+    m->forwardVel = sqrtf(sqr(m->vel[0]) + sqr(m->vel[2]));
+
     if (m->wall != NULL) {
         s16 wallAngle = atan2s(m->wall->normal.z, m->wall->normal.x);
         m->faceAngle[1] = wallAngle - (s16)(m->faceAngle[1] - wallAngle);
@@ -502,9 +505,10 @@ s32 perform_air_quarter_step(struct MarioState *m, Vec3f intendedPos, u32 stepAr
     ball_update_floor_normal(m, floor);
 
     if (upperWall != NULL || lowerWall != NULL) {
+        f32 speedYaw = atan2s(m->vel[2], m->vel[0]);
         m->wall = upperWall != NULL ? upperWall : lowerWall;
         ball_update_wall_normal(m, m->wall);
-        wallDYaw = atan2s(m->wallNormal.z, m->wallNormal.x) - m->faceAngle[1];
+        wallDYaw = atan2s(m->wallNormal.z, m->wallNormal.x) - speedYaw;
 
         if (m->wall->type == SURFACE_BURNING) {
             return AIR_STEP_HIT_LAVA_WALL;

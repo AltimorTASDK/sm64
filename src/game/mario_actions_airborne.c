@@ -400,7 +400,7 @@ u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, 
         case AIR_STEP_HIT_WALL:
             set_mario_animation(m, animation);
 
-            if (m->forwardVel > 16.0f) {
+            if (sqr(m->vel[0]) + sqr(m->vel[2]) > sqr(16.0f)) {
 #if ENABLE_RUMBLE
                 queue_rumble_data(5, 40);
 #endif
@@ -1325,7 +1325,9 @@ s32 act_air_hit_wall(struct MarioState *m) {
 
     if (++(m->actionTimer) <= 2) {
         if (m->input & INPUT_A_PRESSED) {
+            m->vel[0] *= -1.0f;
             m->vel[1] = 52.0f;
+            m->vel[2] *= -1.0f;
             m->faceAngle[1] += DEGREES(180);
             return set_mario_action(m, ACT_WALL_KICK_AIR, 0);
         }
