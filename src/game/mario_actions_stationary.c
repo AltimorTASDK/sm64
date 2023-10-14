@@ -1060,7 +1060,7 @@ s32 act_ground_pound_land(struct MarioState *m) {
 }
 
 s32 act_first_person(struct MarioState *m) {
-    s32 sp1C = (m->input & (INPUT_OFF_FLOOR | INPUT_ABOVE_SLIDE | INPUT_STOMPED)) != 0;
+    s32 sp1C = (m->input & (INPUT_OFF_FLOOR | INPUT_STOMPED)) != 0;
 
     if (m->actionState == 0) {
         lower_background_noise(2);
