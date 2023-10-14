@@ -335,22 +335,27 @@ s32 perform_ground_step(struct MarioState *m) {
     Vec3f intendedPos;
 
     for (i = 0; i < 4; i++) {
-        Vec3f moveDelta;
-        f32 clipDot;
+        f32 moveX;
+        f32 moveZ;
+        f32 lengthSqr;
 
-        moveDelta[0] = m->vel[0] / 4.0f;
-        moveDelta[2] = m->vel[2] / 4.0f;
-        moveDelta[1] = 0.0f;
+        moveX = m->vel[0] / 4.0f;
+        moveZ = m->vel[2] / 4.0f;
+        lengthSqr = sqr(moveX) + sqr(moveZ);
 
-        clipDot = moveDelta[0] * m->floorNormal.x + moveDelta[2] * m->floorNormal.z;
-        moveDelta[0] -= m->floorNormal.x * clipDot;
-        moveDelta[2] -= m->floorNormal.z * clipDot;
+        if (lengthSqr > 0.0f) {
+            // Project horizontal movement onto the floor and scale so that the total
+            // move distance after Mario gets snapped to the floor will match his speed
+            f32 floorDot = moveX * m->floor->normal.x + moveZ * m->floor->normal.z;
+            f32 slopeMoveY = -floorDot / m->floor->normal.y;
+            f32 slopeScale = sqrtf(lengthSqr) / sqrtf(lengthSqr + sqr(slopeMoveY));
+            moveX *= slopeScale;
+            moveZ *= slopeScale;
+        }
 
-        ball_rotate_vector(m, moveDelta, moveDelta, TRUE);
-
-        intendedPos[0] = m->pos[0] + moveDelta[0];
-        intendedPos[1] = m->pos[1] + moveDelta[1];
-        intendedPos[2] = m->pos[2] + moveDelta[2];
+        intendedPos[0] = m->pos[0] + moveX;
+        intendedPos[1] = m->pos[1];
+        intendedPos[2] = m->pos[2] + moveZ;
 
         stepResult = perform_ground_quarter_step(m, intendedPos);
         if (stepResult == GROUND_STEP_LEFT_GROUND || stepResult == GROUND_STEP_HIT_WALL_STOP_QSTEPS) {
