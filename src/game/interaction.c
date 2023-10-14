@@ -23,6 +23,7 @@
 #include "sm64.h"
 #include "sound_init.h"
 #include "rumble_init.h"
+#include "monkey_ball.h"
 
 #define INT_GROUND_POUND_OR_TWIRL (1 << 0) // 0x01
 #define INT_PUNCH                 (1 << 1) // 0x02
@@ -906,7 +907,7 @@ u32 interact_warp_door(struct MarioState *m, UNUSED u32 interactType, struct Obj
     s16 warpDoorId = o->oBhvParams >> 24;
     u32 actionArg;
 
-    if (m->action == ACT_WALKING || m->action == ACT_DECELERATING) {
+    if (ball_can_interact(m)) {
         if (warpDoorId == 1 && !(saveFlags & SAVE_FLAG_UNLOCKED_UPSTAIRS_DOOR)) {
             if (!(saveFlags & SAVE_FLAG_HAVE_KEY_2)) {
                 if (!sDisplayingDoorText) {
@@ -936,7 +937,7 @@ u32 interact_warp_door(struct MarioState *m, UNUSED u32 interactType, struct Obj
             doorAction = ACT_UNLOCKING_KEY_DOOR;
         }
 
-        if (m->action == ACT_WALKING || m->action == ACT_DECELERATING) {
+        if (ball_can_interact(m)) {
             actionArg = should_push_or_pull_door(m, o) + 0x00000004;
 
             if (doorAction == 0) {
@@ -1000,7 +1001,7 @@ u32 interact_door(struct MarioState *m, UNUSED u32 interactType, struct Object *
     s16 requiredNumStars = o->oBhvParams >> 24;
     s16 numStars = save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1);
 
-    if (m->action == ACT_WALKING || m->action == ACT_DECELERATING) {
+    if (ball_can_interact(m)) {
         if (numStars >= requiredNumStars) {
             u32 actionArg = should_push_or_pull_door(m, o);
             u32 enterDoorAction;
@@ -1667,25 +1668,7 @@ u32 interact_grabbable(struct MarioState *m, u32 interactType, struct Object *o)
 }
 
 u32 mario_can_talk(struct MarioState *m, u32 arg) {
-    s16 val6;
-
-    if ((m->action & ACT_FLAG_IDLE) != 0x00000000) {
-        return TRUE;
-    }
-
-    if (m->action == ACT_WALKING) {
-        if (arg) {
-            return TRUE;
-        }
-
-        val6 = m->marioObj->header.gfx.animInfo.animID;
-
-        if (val6 == 0x0080 || val6 == 0x007F || val6 == 0x006C) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
+    return ball_can_interact(m);
 }
 
 #ifdef VERSION_JP

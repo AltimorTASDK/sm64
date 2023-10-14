@@ -154,3 +154,17 @@ void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct Grap
 
     handle_camera_collision(transform, node);
 }
+
+s32 ball_can_interact(struct MarioState *m) {
+    if (m->action & ACT_FLAG_IDLE) {
+        return TRUE;
+    } else if (m->action == ACT_WALKING) {
+        return TRUE;
+    } else if (m->action & ACT_FLAG_BUTT_OR_STOMACH_SLIDE) {
+        return TRUE;
+    } else if (m->action == ACT_DIVE_SLIDE) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
