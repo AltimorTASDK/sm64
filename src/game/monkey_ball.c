@@ -133,7 +133,7 @@ static void split_roll_matrix(Mat4 transform, Mat4 rollMatrix) {
     f32 roll;
     f32 pitchCos = sqrtf(1.0f - sqr(transform[1][2]));
 
-    if (pitchCos == 0.0f) {
+    if (pitchCos <= 1e-4f) {
         // gumbo lock
         return;
     }
