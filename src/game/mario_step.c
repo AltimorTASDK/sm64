@@ -336,9 +336,15 @@ s32 perform_ground_step(struct MarioState *m) {
 
     for (i = 0; i < 4; i++) {
         Vec3f moveDelta;
-        moveDelta[0] = m->floor->normal.y * (m->vel[0] / 4.0f);
-        moveDelta[2] = m->floor->normal.y * (m->vel[2] / 4.0f);
+        f32 clipDot;
+
+        moveDelta[0] = m->vel[0] / 4.0f;
+        moveDelta[2] = m->vel[2] / 4.0f;
         moveDelta[1] = 0.0f;
+
+        clipDot = moveDelta[0] * m->floorNormal.x + moveDelta[2] * m->floorNormal.z;
+        moveDelta[0] -= m->floorNormal.x * clipDot;
+        moveDelta[2] -= m->floorNormal.z * clipDot;
 
         ball_rotate_vector(m, moveDelta, moveDelta, TRUE);
 
