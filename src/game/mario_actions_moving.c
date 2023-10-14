@@ -433,7 +433,7 @@ s32 update_walking_speed(struct MarioState *m) {
     f32 oldSpeed;
     f32 newSpeed;
 
-    update_sliding(m, 4.0f);
+    update_sliding(m, BALL_STOP_SPEED);
     oldSpeed = sqrtf(sqr(m->slideVelX) + sqr(m->slideVelZ));
     newSpeed = oldSpeed - (m->forwardVel >= 0.0f ? 1.0f : 1.1f) * m->floorNormal.y;
 
@@ -1433,7 +1433,7 @@ s32 common_slide_action_with_jump(struct MarioState *m, u32 stopAction, u32 jump
             m, m->forwardVel >= 0.0f ? ACT_FORWARD_ROLLOUT : ACT_BACKWARD_ROLLOUT, 0);
     }
 
-    if (update_sliding(m, 4.0f)) {
+    if (update_sliding(m, BALL_STOP_SPEED)) {
         return set_mario_action(m, stopAction, 0);
     }
 
@@ -1732,7 +1732,7 @@ u32 common_landing_action(struct MarioState *m, s16 animation, u32 airAction) {
         m->vel[1] = 0.0f;
     }
 #else
-    update_sliding(m, 4.0f);
+    update_sliding(m, BALL_STOP_SPEED);
 #endif
 
     stepResult = perform_ground_step(m);
