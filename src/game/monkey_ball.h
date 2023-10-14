@@ -7,7 +7,7 @@
 
 // ball cam lmao
 
-#define BALL_CAM_FOV 74.0f
+#define BALL_CAM_FOV_TAN_MUL 1.81924f
 
 // Added camera distance
 #define BALL_CAM_DISTANCE_MUL 0.54968f

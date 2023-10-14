@@ -11384,17 +11384,14 @@ void fov_default(struct MarioState *m) {
     sStatusFlags &= ~CAM_FLAG_SLEEPING;
 
     if ((m->action == ACT_SLEEPING) || (m->action == ACT_START_SLEEPING)) {
-#if 0
         camera_approach_f32_symmetric_bool(&sFOVState.fov, 30.f, (30.f - sFOVState.fov) / 30.f);
-#endif
-        camera_approach_f32_symmetric_bool(&sFOVState.fov, BALL_CAM_FOV, (BALL_CAM_FOV - sFOVState.fov) / 30.f);
         sStatusFlags |= CAM_FLAG_SLEEPING;
     } else {
-        camera_approach_f32_symmetric_bool(&sFOVState.fov, BALL_CAM_FOV, (BALL_CAM_FOV - sFOVState.fov) / 30.f);
+        camera_approach_f32_symmetric_bool(&sFOVState.fov, 45.f, (45.f - sFOVState.fov) / 30.f);
         sFOVState.unusedIsSleeping = 0;
     }
     if (m->area->camera->cutscene == CUTSCENE_0F_UNUSED) {
-        sFOVState.fov = BALL_CAM_FOV;
+        sFOVState.fov = 45.f;
     }
 }
 
@@ -11447,6 +11444,9 @@ void set_fov_bbh(struct MarioState *m) {
  * Sets the field of view for the GraphNodeCamera
  */
 Gfx *geo_camera_fov(s32 callContext, struct GraphNode *g, UNUSED void *context) {
+    f32 halfFovRad;
+    f32 halfFovSin;
+    f32 halfFovCos;
     struct GraphNodePerspective *perspective = (struct GraphNodePerspective *) g;
     struct MarioState *marioState = &gMarioStates[0];
     u8 fovFunc = sFOVState.fovFunc;
@@ -11490,7 +11490,10 @@ Gfx *geo_camera_fov(s32 callContext, struct GraphNode *g, UNUSED void *context) 
         }
     }
 
-    perspective->fov = sFOVState.fov;
+    halfFovRad = sFOVState.fov * (f32)(M_PI / 360.0);
+    halfFovSin = sinf(halfFovRad) * BALL_CAM_FOV_TAN_MUL;
+    halfFovCos = cosf(halfFovRad);
+    perspective->fov = atan2f(halfFovCos, halfFovSin) * 360.0f / M_PI;
     shake_camera_fov(perspective);
     return NULL;
 }
