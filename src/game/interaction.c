@@ -424,14 +424,14 @@ u32 mario_check_object_grab(struct MarioState *m) {
         script = virtual_to_segmented(0x13, m->interactObj->behavior);
 
         if (script == bhvBowser) {
-            s16 facingDYaw = m->faceAngle[1] - m->interactObj->oMoveAngleYaw;
+            s16 facingDYaw = m->intendedYaw - m->interactObj->oMoveAngleYaw;
             if (facingDYaw >= -0x5555 && facingDYaw <= 0x5555) {
                 m->faceAngle[1] = m->interactObj->oMoveAngleYaw;
                 m->usedObj = m->interactObj;
                 result = set_mario_action(m, ACT_PICKING_UP_BOWSER, 0);
             }
         } else {
-            s16 facingDYaw = mario_obj_angle_to_object(m, m->interactObj) - m->faceAngle[1];
+            s16 facingDYaw = mario_obj_angle_to_object(m, m->interactObj) - m->intendedYaw;
             if (facingDYaw >= -0x2AAA && facingDYaw <= 0x2AAA) {
                 m->usedObj = m->interactObj;
 
