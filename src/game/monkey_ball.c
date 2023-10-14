@@ -24,6 +24,14 @@ s32 ball_allow_tilt(struct MarioState *m) {
         return FALSE;
     } else if (m->action == ACT_FIRST_PERSON) {
         return FALSE;
+    } else if (m->action == ACT_IN_CANNON) {
+        return FALSE;
+    } else if (m->action == ACT_PICKING_UP_BOWSER) {
+        return FALSE;
+    } else if (m->action == ACT_HOLDING_BOWSER) {
+        return FALSE;
+    } else if (m->action == ACT_RELEASING_BOWSER) {
+        return FALSE;
     } else {
         return TRUE;
     }
