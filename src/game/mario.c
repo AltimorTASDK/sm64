@@ -6,6 +6,7 @@
 #include "behavior_actions.h"
 #include "behavior_data.h"
 #include "camera.h"
+#include "crash_screen.h"
 #include "debug.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
@@ -1721,6 +1722,7 @@ void func_sh_8025574C(void) {
  * Main function for executing Mario's behavior.
  */
 s32 execute_mario_action(UNUSED struct Object *o) {
+    u32 iterations;
     s32 inLoop = TRUE;
 
     ball_update_world_tilt(gMarioState);
@@ -1740,11 +1742,15 @@ s32 execute_mario_action(UNUSED struct Object *o) {
         // The function can loop through many action shifts in one frame,
         // which can lead to unexpected sub-frame behavior. Could potentially hang
         // if a loop of actions were found, but there has not been a situation found.
-        while (inLoop) {
-            if (sqr(gMarioState->vel[0]) + sqr(gMarioState->vel[2]) > sqr(BALL_STOP_SPEED)) {
+        for (iterations = 0; inLoop; iterations++) {
+            if (ball_is_moving(gMarioState)) {
                 gMarioState->input |= INPUT_BALL_MOVING;
             } else {
                 gMarioState->input &= ~INPUT_BALL_MOVING;
+            }
+
+            if (iterations == 16) {
+                panic("Infinite action loop");
             }
 
             switch (gMarioState->action & ACT_GROUP_MASK) {

@@ -51,6 +51,7 @@ char *gFpcsrDesc[6] = {
     "Inexact operation",
 };
 
+char *gPanicMessage = NULL;
 
 
 extern u64 osClockRate;
@@ -243,7 +244,8 @@ void draw_crash_screen(OSThread *thread) {
 #endif
 
     crash_screen_draw_rect(25, 20, 270, 25);
-    crash_screen_print(30, 25, "THREAD:%d  (%s)", thread->id, gCauseDesc[cause]);
+    crash_screen_print(30, 25, "THREAD:%d  (%s)", thread->id,
+                       gPanicMessage != NULL ? gPanicMessage : gCauseDesc[cause]);
     crash_screen_print(30, 35, "PC:%08XH   SR:%08XH   VA:%08XH", tc->pc, tc->sr, tc->badvaddr);
 #ifdef VERSION_EU
     osWritebackDCacheAll();

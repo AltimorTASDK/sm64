@@ -16,9 +16,9 @@
 #define CAMERA_SIZE 40.0f
 
 s32 ball_allow_tilt(struct MarioState *m) {
-    if (m->input & (INPUT_IN_WATER | INPUT_FIRST_PERSON)) {
+    if (m->input & INPUT_FIRST_PERSON) {
         return FALSE;
-    } else if (m->action & (ACT_FLAG_ON_POLE | ACT_FLAG_RIDING_SHELL)) {
+    } else if (m->action & (ACT_FLAG_ON_POLE | ACT_FLAG_RIDING_SHELL | ACT_FLAG_SWIMMING)) {
         return FALSE;
     } else if (m->action == ACT_LAVA_BOOST) {
         return FALSE;
@@ -211,5 +211,15 @@ s32 ball_can_interact(struct MarioState *m) {
         return TRUE;
     } else {
         return FALSE;
+    }
+}
+
+s32 ball_is_moving(struct MarioState *m) {
+    if (sqr(m->vel[0]) + sqr(m->vel[2]) <= sqr(BALL_STOP_SPEED)) {
+        return FALSE;
+    } else if (!ball_allow_tilt(m)) {
+        return FALSE;
+    } else {
+        return TRUE;
     }
 }
