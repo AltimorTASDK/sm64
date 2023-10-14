@@ -941,6 +941,8 @@ static u32 set_mario_action_moving(struct MarioState *m, u32 action, UNUSED u32 
             break;
 
         case ACT_BEGIN_SLIDING:
+            m->faceAngle[1] = m->intendedYaw;
+            m->slideYaw = m->intendedYaw;
             m->slideVelX = m->vel[0];
             m->slideVelZ = m->vel[2];
 
