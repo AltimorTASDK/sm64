@@ -29,6 +29,30 @@ s32 ball_allow_tilt(struct MarioState *m) {
     }
 }
 
+s32 ball_can_interact(struct MarioState *m) {
+    if (m->action & ACT_FLAG_IDLE) {
+        return TRUE;
+    } else if (m->action == ACT_WALKING) {
+        return TRUE;
+    } else if (m->action & ACT_FLAG_BUTT_OR_STOMACH_SLIDE) {
+        return TRUE;
+    } else if (m->action == ACT_DIVE_SLIDE) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+s32 ball_is_moving(struct MarioState *m) {
+    if (sqr(m->vel[0]) + sqr(m->vel[2]) <= sqr(BALL_STOP_SPEED)) {
+        return FALSE;
+    } else if (!ball_allow_tilt(m)) {
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
 void ball_update_world_tilt(struct MarioState *m) {
     Vec3f targetWorldUp;
 
@@ -164,6 +188,18 @@ static s32 should_apply_tilt(struct MarioState *m) {
     }
 }
 
+static void create_tilt_matrix(struct MarioState *m, Mat4 tiltMatrix, s32 invert) {
+    Vec3f right;
+    f32 angleSine = sqrtf(sqr(m->worldUp[0]) + sqr(m->worldUp[2]));
+    vec3f_right(right, m->worldUp);
+
+    if (invert) {
+        angleSine *= -1.0f;
+    }
+
+    mtxf_create_rot_matrix(tiltMatrix, right, angleSine, m->worldUp[1]);
+}
+
 void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioState *m,
                                struct GraphNodeCamera *node) {
     Vec3f offset;
@@ -171,25 +207,17 @@ void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioStat
     Vec3f translation;
     Mat4 translationMatrix;
     Mat4 tiltMatrix;
-    f32 *worldUp;
-    f32 angleSine;
 
     if (!should_apply_tilt(m)) {
         mtxf_lookat(transform, node->pos, node->focus, node->roll);
         return;
     }
 
-    worldUp = m->worldUp;
-    angleSine = sqrtf(sqr(worldUp[0]) + sqr(worldUp[2]));
-
     vec3f_copy(offset, node->pos);
     vec3f_sub(offset, node->focus);
     mtxf_lookat(transform, offset, gVec3fZero, node->roll);
 
-    vec3f_right(right, worldUp);
-    right[0] *= -1.0f;
-    right[2] *= -1.0f;
-    mtxf_create_rot_matrix(tiltMatrix, right, angleSine, worldUp[1]);
+    create_tilt_matrix(m, tiltMatrix, TRUE);
     mtxf_mul(transform, tiltMatrix, transform);
 
     vec3f_set(translation, -node->focus[0], -node->focus[1], -node->focus[2]);
@@ -198,28 +226,4 @@ void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioStat
 
     handle_camera_collision(transform, node);
     split_roll_matrix(transform, rollMatrix);
-}
-
-s32 ball_can_interact(struct MarioState *m) {
-    if (m->action & ACT_FLAG_IDLE) {
-        return TRUE;
-    } else if (m->action == ACT_WALKING) {
-        return TRUE;
-    } else if (m->action & ACT_FLAG_BUTT_OR_STOMACH_SLIDE) {
-        return TRUE;
-    } else if (m->action == ACT_DIVE_SLIDE) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
-
-s32 ball_is_moving(struct MarioState *m) {
-    if (sqr(m->vel[0]) + sqr(m->vel[2]) <= sqr(BALL_STOP_SPEED)) {
-        return FALSE;
-    } else if (!ball_allow_tilt(m)) {
-        return FALSE;
-    } else {
-        return TRUE;
-    }
 }
