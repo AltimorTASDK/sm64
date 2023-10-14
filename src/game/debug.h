@@ -12,6 +12,20 @@ enum DebugPage {
     DEBUG_PAGE_ENEMYINFO         // 5: enemyinfo
 };
 
+enum {
+    DEBUG_TEXT_ANG,
+    DEBUG_TEXT_SPD,
+    DEBUG_TEXT_STA,
+#if 0
+    DEBUG_TEXT_MEM,
+    DEBUG_TEXT_BUF,
+#endif
+    DEBUG_TEXT_COUNT,
+    DEBUG_TEXT_MAX = DEBUG_TEXT_COUNT - 1
+};
+
+#define DEBUG_TEXT_Y(name) ((DEBUG_TEXT_MAX - (DEBUG_TEXT_##name)) * 16 + 20)
+
 s64 get_current_clock(void);
 s64 get_clock_difference(UNUSED s64 cycles);
 void set_text_array_x_y(s32 xOffset, s32 yOffset);

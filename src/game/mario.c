@@ -6,6 +6,7 @@
 #include "behavior_actions.h"
 #include "behavior_data.h"
 #include "camera.h"
+#include "debug.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
 #include "engine/surface_collision.h"
@@ -1259,12 +1260,12 @@ void debug_print_speed_action_normal(struct MarioState *m) {
             ((m->floorNormal.x * m->floorNormal.x) + (m->floorNormal.z * m->floorNormal.z)));
         floor_nY = m->floorNormal.y;
 
-        print_text_fmt_int(210, 88, "ANG %d", (atan2s(floor_nY, steepness) * 180.0f) / 32768.0f);
+        print_text_fmt_int(210, DEBUG_TEXT_Y(ANG), "ANG %d", (atan2s(floor_nY, steepness) * 180.0f) / 32768.0f);
 
-        print_text_fmt_int(210, 72, "SPD %d", m->forwardVel);
+        print_text_fmt_int(210, DEBUG_TEXT_Y(SPD), "SPD %d", m->forwardVel);
 
         // STA short for "status," the official action name via SMS map.
-        print_text_fmt_int(210, 56, "STA %x", (m->action & ACT_ID_MASK));
+        print_text_fmt_int(210, DEBUG_TEXT_Y(STA), "STA %x", (m->action & ACT_ID_MASK));
     }
 }
 
