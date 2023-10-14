@@ -36,6 +36,7 @@
 
 u32 unused80339F10;
 u8 unused80339F1C[20];
+s32 gMarioIsInitialized = FALSE;
 
 /**************************************************
  *                    ANIMATIONS                  *
@@ -1898,6 +1899,8 @@ void init_mario(void) {
     }
 
     vec3f_set(gMarioState->worldUp, 0.0f, 1.0f, 0.0f);
+
+    gMarioIsInitialized = TRUE;
 }
 
 void init_mario_from_save_file(void) {
