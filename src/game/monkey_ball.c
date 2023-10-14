@@ -245,11 +245,17 @@ static s32 should_tilt_model(struct MarioState *m) {
 void ball_update_mario_rotation(struct MarioState *m) {
     if (should_tilt_model(m)) {
         Mat4 tiltMatrix;
+        Mat4 rotationMatrix;
         struct Object *obj = m->marioObj;
 
-        mtxf_rotate_zxy_and_translate(m->tiltTransform, obj->header.gfx.pos, obj->header.gfx.angle);
+        mtxf_translate(m->tiltTransform, obj->header.gfx.pos);
+
         create_inverted_tilt_matrix(m, tiltMatrix);
         mtxf_mul(m->tiltTransform, tiltMatrix, m->tiltTransform);
+
+        mtxf_rotate_zxy_and_translate(rotationMatrix, gVec3fZero, obj->header.gfx.angle);
+        mtxf_mul(m->tiltTransform, rotationMatrix, m->tiltTransform);
+
         obj->header.gfx.throwMatrix = &m->tiltTransform;
     }
 }
