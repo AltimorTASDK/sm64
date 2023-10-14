@@ -26,6 +26,9 @@
 #define BALL_CAM_FOC_MUL   0.9f
 #define BALL_CAM_FOC_BOUND 200.0f
 
+// Extra distance added to NPC/sign hitboxes for interaction
+#define BALL_TALK_LENIENCY 50.0f
+
 struct GraphNodeCamera;
 struct MarioState;
 struct Surface;

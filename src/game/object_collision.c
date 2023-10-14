@@ -6,6 +6,7 @@
 #include "mario.h"
 #include "object_list_processor.h"
 #include "spawn_object.h"
+#include "monkey_ball.h"
 
 struct Object *debug_print_obj_collision(struct Object *a) {
     struct Object *sp24;
@@ -30,6 +31,11 @@ s32 detect_object_hitbox_overlap(struct Object *a, struct Object *b) {
     f32 dz = a->oPosZ - b->oPosZ;
     f32 collisionRadius = a->hitboxRadius + b->hitboxRadius;
     f32 distance = sqrtf(dx * dx + dz * dz);
+
+    // Add leniency on talking/reading signs
+    if ((a->oInteractType | b->oInteractType) & INTERACT_TEXT) {
+        collisionRadius += BALL_TALK_LENIENCY;
+    }
 
     if (collisionRadius > distance) {
         f32 sp20 = a->hitboxHeight + sp3C;
