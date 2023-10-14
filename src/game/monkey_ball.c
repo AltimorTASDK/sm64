@@ -124,11 +124,11 @@ static s32 should_apply_tilt(struct MarioState *m) {
     }
 }
 
-static void create_inverted_tilt_matrix(struct MarioState *m, Mat4 tiltMatrix) {
+static void create_tilt_matrix(struct MarioState *m, Mat4 tiltMatrix, s32 invert) {
     Vec3f right;
     f32 angleSine = sqrtf(sqr(m->worldUp[0]) + sqr(m->worldUp[2]));
     vec3f_right(right, m->worldUp);
-    mtxf_create_rot_matrix(tiltMatrix, right, -angleSine, m->worldUp[1]);
+    mtxf_create_rot_matrix(tiltMatrix, right, invert ? -angleSine : angleSine, m->worldUp[1]);
 }
 
 static s32 should_tilt_camera(struct MarioState *m) {
@@ -219,7 +219,7 @@ void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioStat
     vec3f_sub(offset, node->focus);
     mtxf_lookat(transform, offset, gVec3fZero, node->roll);
 
-    create_inverted_tilt_matrix(m, tiltMatrix);
+    create_tilt_matrix(m, tiltMatrix, TRUE);
     mtxf_mul(transform, tiltMatrix, transform);
 
     vec3f_set(translation, -node->focus[0], -node->focus[1], -node->focus[2]);
@@ -250,7 +250,7 @@ void ball_update_mario_rotation(struct MarioState *m) {
 
         mtxf_translate(m->tiltTransform, obj->header.gfx.pos);
 
-        create_inverted_tilt_matrix(m, tiltMatrix);
+        create_tilt_matrix(m, tiltMatrix, FALSE);
         mtxf_mul(m->tiltTransform, tiltMatrix, m->tiltTransform);
 
         mtxf_rotate_zxy_and_translate(rotationMatrix, gVec3fZero, obj->header.gfx.angle);
