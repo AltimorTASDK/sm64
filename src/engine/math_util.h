@@ -73,7 +73,9 @@ void *vec3f_to_vec3s(Vec3s dest, Vec3f a);
 void *find_vector_perpendicular_to_plane(Vec3f dest, Vec3f a, Vec3f b, Vec3f c);
 void *vec3f_cross(Vec3f dest, Vec3f a, Vec3f b);
 void *vec3f_normalize(Vec3f dest);
+#if 0
 void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t);
+#endif
 void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate);
 void *vec3f_right(Vec3f dest, Vec3f v);
 void mtxf_copy(Mat4 dest, Mat4 src);
@@ -82,6 +84,8 @@ void mtxf_translate(Mat4 dest, Vec3f b);
 void mtxf_lookat(Mat4 mtx, Vec3f from, Vec3f to, s16 roll);
 void mtxf_rotate_zxy_and_translate(Mat4 dest, Vec3f translate, Vec3s rotate);
 void mtxf_rotate_xyz_and_translate(Mat4 dest, Vec3f b, Vec3s c);
+void mtxf_create_rot_matrix(Mat4 mtx, Vec3f vec, f32 s, f32 c);
+void mtxf_create_rot_mat_angular(Mat4 mtx, Vec3f vec, f32 ang);
 void mtxf_billboard(Mat4 dest, Mat4 mtx, Vec3f position, s16 angle);
 void mtxf_align_terrain_normal(Mat4 dest, Vec3f upDir, Vec3f pos, s16 yaw);
 void mtxf_align_terrain_triangle(Mat4 mtx, Vec3f pos, s16 yaw, f32 radius);

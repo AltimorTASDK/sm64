@@ -4,8 +4,9 @@
 #include "mario.h"
 #include "area.h"
 #include "sm64.h"
-#include "engine/math_util.h"
 #include "game_init.h"
+#include "engine/graph_node.h"
+#include "engine/math_util.h"
 
 #define MAX_TILT  DEGREES(30.0f)
 #define LERP_RATE (f32)(5.0 * M_PI / 180.0)
@@ -83,4 +84,43 @@ void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
         out[2] = up[2] * v[1];
         out[1] = up[1] * v[1];
     }
+}
+
+static void raise_camera_to_floor(Mat4 transform, struct GraphNodeCamera *node)
+{
+    //floorHeight = find_floor(nextPos[0], nextPos[1], nextPos[2], &floor);
+}
+
+void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct GraphNodeCamera *node)
+{
+    Vec3f offset;
+    Vec3f right;
+    Vec3f translation;
+    Mat4 translationMatrix;
+    Mat4 rotationMatrix;
+    f32 *worldUp;
+    f32 angleSine;
+
+    if (m == NULL || m->worldUp[1] >= 1.0f) {
+        mtxf_lookat(transform, node->pos, node->focus, node->roll);
+    }
+
+    worldUp = m->worldUp;
+    angleSine = sqrtf(sqr(worldUp[0]) + sqr(worldUp[2]));
+
+    vec3f_copy(offset, node->pos);
+    vec3f_sub(offset, node->focus);
+    mtxf_lookat(transform, offset, gVec3fZero, node->roll);
+
+    vec3f_right(right, worldUp);
+    right[0] *= -1.0f;
+    right[2] *= -1.0f;
+    mtxf_create_rot_matrix(rotationMatrix, right, angleSine, worldUp[1]);
+    mtxf_mul(transform, rotationMatrix, transform);
+
+    vec3f_set(translation, -node->focus[0], -node->focus[1], -node->focus[2]);
+    mtxf_translate(translationMatrix, translation);
+    mtxf_mul(transform, translationMatrix, transform);
+
+    raise_camera_to_floor(transform, node);
 }

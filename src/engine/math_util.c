@@ -147,6 +147,7 @@ void *vec3f_normalize(Vec3f dest) {
     return &dest; //! warning: function returns address of local variable
 }
 
+#if 0
 /// Spherical lerp of two unit vectors
 void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
     f32 angle = acosf(min(max(vec3f_dot(a, b), -1.0f), 1.0f));
@@ -162,6 +163,7 @@ void *vec3f_slerp(Vec3f dest, Vec3f a, Vec3f b, f32 t) {
     }
     return &dest; //! warning: function returns address of local variable
 }
+#endif
 
 /// Spherical lerp of two unit vectors using a rate in radians
 void *vec3f_slerp_rate(Vec3f dest, Vec3f a, Vec3f b, f32 rate) {
@@ -375,6 +377,54 @@ void mtxf_rotate_xyz_and_translate(Mat4 dest, Vec3f b, Vec3s c) {
     dest[3][1] = b[1];
     dest[3][2] = b[2];
     dest[3][3] = 1;
+}
+
+/**
+ * Creates a rotation matrix to multiply the primary matrix by.
+ * s/c are sin(angle)/cos(angle). That angular rotation is about vector
+ * 'vec'.
+ *
+ * Matrix has form-
+ *
+ * | (1-c)z^2+c (1-c)zy-sx (1-c)xz-sy 0 |
+ * | (1-c)zy-sx (1-c)y^2+c (1-c)xy-sz 0 |
+ * | (1-c)xz-sy (1-c)xy-sz (1-c)x^2+c 0 |
+ * |      0          0          0     1 |
+ */
+void mtxf_create_rot_matrix(Mat4 mtx, Vec3f vec, f32 s, f32 c) {
+    f32 oneMinusCos;
+    Vec3f rev;
+
+    vec3f_set(rev, vec[2], vec[1], vec[0]);
+
+    oneMinusCos = 1.0 - c;
+
+    mtx[0][0] = oneMinusCos * rev[2] * rev[2] + c;
+    mtx[0][1] = oneMinusCos * rev[2] * rev[1] + s * rev[0];
+    mtx[0][2] = oneMinusCos * rev[2] * rev[0] - s * rev[1];
+    mtx[0][3] = 0.0f;
+
+    mtx[1][0] = oneMinusCos * rev[2] * rev[1] - s * rev[0];
+    mtx[1][1] = oneMinusCos * rev[1] * rev[1] + c;
+    mtx[1][2] = oneMinusCos * rev[1] * rev[0] + s * rev[2];
+    mtx[1][3] = 0.0f;
+
+    mtx[2][0] = oneMinusCos * rev[2] * rev[0] + s * rev[1];
+    mtx[2][1] = oneMinusCos * rev[1] * rev[0] - s * rev[2];
+    mtx[2][2] = oneMinusCos * rev[0] * rev[0] + c;
+    mtx[2][3] = 0.0f;
+
+    mtx[3][0] = 0.0f;
+    mtx[3][1] = 0.0f;
+    mtx[3][2] = 0.0f;
+    mtx[3][3] = 1.0f;
+}
+
+/**
+ * Creates a rotation matrix about vector 'vec' with ang in radians.
+ */
+void mtxf_create_rot_mat_angular(Mat4 mtx, Vec3f vec, f32 ang) {
+    mtxf_create_rot_matrix(mtx, vec, sinf(ang), cosf(ang));
 }
 
 /**

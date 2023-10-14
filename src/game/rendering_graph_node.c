@@ -10,6 +10,8 @@
 #include "rendering_graph_node.h"
 #include "shadow.h"
 #include "sm64.h"
+#include "level_update.h"
+#include "monkey_ball.h"
 
 /**
  * This file contains the code that processes the scene graph for rendering.
@@ -319,7 +321,8 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
 
     gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(rollMtx), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
 
-    mtxf_lookat(cameraTransform, node->pos, node->focus, node->roll);
+    ball_get_camera_transform(cameraTransform, gMarioState, node);
+
     mtxf_mul(gMatStack[gMatStackIndex + 1], cameraTransform, gMatStack[gMatStackIndex]);
     gMatStackIndex++;
     mtxf_to_mtx(mtx, gMatStack[gMatStackIndex]);
