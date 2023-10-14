@@ -5,6 +5,7 @@
 #include "area.h"
 #include "sm64.h"
 #include "game_init.h"
+#include "camera.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
 #include "engine/surface_collision.h"
@@ -129,23 +130,51 @@ static void handle_camera_collision(Mat4 transform, struct GraphNodeCamera *node
     mtxf_mul(transform, translationMatrix, transform);
 }
 
-f32 gRollTest;
+static void split_roll_matrix(Mat4 transform, Mat4 rollMatrix) {
+    Mat4 transformRollMatrix;
+    f32 roll;
+    f32 pitchCos = sqrtf(1.0f - sqr(transform[1][2]));
 
-static void split_roll_matrix(Mat4 transform, Mat4 rollMtx) {
-    gRollTest = transform[2][1];
+    if (pitchCos == 0.0f) {
+        // gumbo lock
+        return;
+    }
+
+    roll = atan2f(transform[1][1] / pitchCos, transform[1][0] / pitchCos);
+
+    // Remove roll from transform
+    mtxf_rotate_xyf(transformRollMatrix, roll);
+    mtxf_mul(transform, transform, transformRollMatrix);
+
+    // Negate and apply roll to its own matrix
+    transformRollMatrix[0][1] *= -1.0f;
+    transformRollMatrix[1][0] *= -1.0f;
+    mtxf_mul(rollMatrix, rollMatrix, transformRollMatrix);
 }
 
-void ball_get_camera_transform(Mat4 transform, Mat4 rollMtx, struct MarioState *m,
+static s32 should_apply_tilt(struct MarioState *m) {
+    if (!gMarioIsInitialized) {
+        return FALSE;
+    } else if (m->worldUp[1] >= 1.0f) {
+        return FALSE;
+    } else if (gCameraMovementFlags & CAM_MOVE_PAUSE_SCREEN) {
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
+void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioState *m,
                                struct GraphNodeCamera *node) {
     Vec3f offset;
     Vec3f right;
     Vec3f translation;
     Mat4 translationMatrix;
-    Mat4 rotationMatrix;
+    Mat4 tiltMatrix;
     f32 *worldUp;
     f32 angleSine;
 
-    if (!gMarioIsInitialized || m->worldUp[1] >= 1.0f) {
+    if (!should_apply_tilt(m)) {
         mtxf_lookat(transform, node->pos, node->focus, node->roll);
         return;
     }
@@ -160,15 +189,15 @@ void ball_get_camera_transform(Mat4 transform, Mat4 rollMtx, struct MarioState *
     vec3f_right(right, worldUp);
     right[0] *= -1.0f;
     right[2] *= -1.0f;
-    mtxf_create_rot_matrix(rotationMatrix, right, angleSine, worldUp[1]);
-    mtxf_mul(transform, rotationMatrix, transform);
+    mtxf_create_rot_matrix(tiltMatrix, right, angleSine, worldUp[1]);
+    mtxf_mul(transform, tiltMatrix, transform);
 
     vec3f_set(translation, -node->focus[0], -node->focus[1], -node->focus[2]);
     mtxf_translate(translationMatrix, translation);
     mtxf_mul(transform, translationMatrix, transform);
 
     handle_camera_collision(transform, node);
-    split_roll_matrix(transform, rollMtx);
+    split_roll_matrix(transform, rollMatrix);
 }
 
 s32 ball_can_interact(struct MarioState *m) {

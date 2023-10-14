@@ -27,7 +27,7 @@ void ball_update_floor_normal(struct MarioState *m, struct Surface *floor);
 void ball_update_wall_normal(struct MarioState *m, struct Surface *wall);
 void ball_update_surface_normals(struct MarioState *m);
 void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert);
-void ball_get_camera_transform(Mat4 transform, Mat4 rollMtx, struct MarioState *m,
+void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioState *m,
                                struct GraphNodeCamera *node);
 s32 ball_can_interact(struct MarioState *m);
 

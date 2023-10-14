@@ -691,6 +691,17 @@ void mtxf_rotate_xy(Mat4 mtx, s16 angle) {
 }
 
 /**
+ * Set 'mtx' to a transformation matrix that rotates around the z axis.
+ */
+void mtxf_rotate_xyf(Mat4 mtx, f32 angle) {
+    mtxf_identity(mtx);
+    mtx[0][0] = cosf(angle);
+    mtx[0][1] = sinf(angle);
+    mtx[1][0] = -mtx[0][1];
+    mtx[1][1] = mtx[0][0];
+}
+
+/**
  * Extract a position given an object's transformation matrix and a camera matrix.
  * This is used for determining the world position of the held object: since objMtx
  * inherits the transformation from both the camera and Mario, it calculates this
