@@ -666,29 +666,25 @@ void unused_set_camera_pitch_shake_env(s16 shake) {
  *      posOff and focOff are sometimes the same address, which just ignores the pos calculation
  *! Doesn't return anything, but required to match on -O2
  */
-BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 *focOff, f32 focMul, f32 focBound) {
+static void pos_calc_y_to_curr_floor(f32 *pos, f32 *posOff, f32 posMul, f32 posBound, f32 *focOff, f32 focMul, f32 focBound) {
     f32 floorHeight = sMarioGeometry.currFloorHeight;
     f32 waterHeight;
 
     if (!(sMarioCamState->action & ACT_FLAG_METAL_WATER)) {
         //! @bug this should use sMarioGeometry.waterHeight
-        if (floorHeight < (waterHeight = find_water_level(sMarioCamState->pos[0], sMarioCamState->pos[2]))) {
+        if (floorHeight < (waterHeight = find_water_level(pos[0], pos[2]))) {
             floorHeight = waterHeight;
         }
     }
 
     if (sMarioCamState->action & ACT_FLAG_ON_POLE) {
-        if (sMarioGeometry.currFloorHeight >= gMarioStates[0].usedObj->oPosY && sMarioCamState->pos[1]
+        if (sMarioGeometry.currFloorHeight >= gMarioStates[0].usedObj->oPosY && pos[1]
                    < 0.7f * gMarioStates[0].usedObj->hitboxHeight + gMarioStates[0].usedObj->oPosY) {
             posBound = 1200;
         }
     }
 
-    // Attempt to adjust for effectively increased distance to ground when tilting
-    posBound *= gMarioState->worldUp[1];
-    focBound *= gMarioState->worldUp[1];
-
-    *posOff = (floorHeight - sMarioCamState->pos[1]) * posMul;
+    *posOff = (floorHeight - pos[1]) * posMul;
 
     if (*posOff > posBound) {
         *posOff = posBound;
@@ -698,7 +694,7 @@ BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 
         *posOff = -posBound;
     }
 
-    *focOff = (floorHeight - sMarioCamState->pos[1]) * focMul;
+    *focOff = (floorHeight - pos[1]) * focMul;
 
     if (*focOff > focBound) {
         *focOff = focBound;
@@ -707,6 +703,10 @@ BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 
     if (*focOff < -focBound) {
         *focOff = -focBound;
     }
+}
+
+BAD_RETURN(f32) calc_y_to_curr_floor(f32 *posOff, f32 posMul, f32 posBound, f32 *focOff, f32 focMul, f32 focBound) {
+    pos_calc_y_to_curr_floor(sMarioCamState->pos, posOff, posMul, posBound, focOff, focMul, focBound);
 }
 
 void focus_on_mario(Vec3f focus, Vec3f pos, f32 posYOff, f32 focYOff, f32 dist, s16 pitch, s16 yaw) {
@@ -1485,7 +1485,6 @@ s32 update_fixed_camera(struct Camera *c, Vec3f focus, UNUSED Vec3f pos) {
     handle_c_button_movement(c);
     play_camera_buzz_if_cdown();
 
-    calc_y_to_curr_floor(&focusFloorOff, 1.f, 200.f, &focusFloorOff, 0.9f, 200.f);
     calc_y_to_curr_floor(&focusFloorOff, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
                          &focusFloorOff, BALL_CAM_FOC_MUL, BALL_CAM_FOC_BOUND);
     vec3f_copy(focus, sMarioCamState->pos);
@@ -2266,6 +2265,16 @@ s16 update_default_camera(struct Camera *c) {
     marioFloorHeight = 125.f + sMarioGeometry.currFloorHeight;
     marioFloor = sMarioGeometry.currFloor;
     camFloorHeight = find_floor(cPos[0], cPos[1] + 50.f, cPos[2], &cFloor) + 125.f;
+
+    // Prevent the camera from getting too far below Mario
+    vec3f_set(tempPos, gMarioState->pos[0], gMarioState->pos[1] + 125.f, gMarioState->pos[2]);
+    pos_calc_y_to_curr_floor(tempPos, &posHeight, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND,
+                                      &posHeight, BALL_CAM_POS_MUL, BALL_CAM_POS_BOUND);
+
+    if (camFloorHeight < tempPos[1] + posHeight) {
+        camFloorHeight = tempPos[1] + posHeight;
+    }
+
     for (scale = 0.1f; scale < 1.f; scale += 0.2f) {
         scale_along_line(tempPos, cPos, sMarioCamState->pos, scale);
         tempFloorHeight = find_floor(tempPos[0], tempPos[1], tempPos[2], &tempFloor) + 125.f;
