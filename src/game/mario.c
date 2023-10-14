@@ -575,7 +575,7 @@ s32 mario_facing_downhill(struct MarioState *m, s32 turnYaw) {
 u32 mario_floor_is_slippery(struct MarioState *m) {
     f32 normY;
 
-    if (m->input & INPUT_NONZERO_ANALOG) {
+    if (ball_allow_tilt(m) && (m->input & INPUT_NONZERO_ANALOG)) {
         return TRUE;
     }
 
@@ -611,7 +611,7 @@ u32 mario_floor_is_slippery(struct MarioState *m) {
 s32 mario_floor_is_slope(struct MarioState *m) {
     f32 normY;
 
-    if (m->input & INPUT_NONZERO_ANALOG) {
+    if (ball_allow_tilt(m) && (m->input & INPUT_NONZERO_ANALOG)) {
         return TRUE;
     }
 

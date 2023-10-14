@@ -93,7 +93,7 @@ void mtxf_mul(Mat4 dest, Mat4 a, Mat4 b);
 void mtxf_scale_vec3f(Mat4 dest, Mat4 mtx, Vec3f s);
 void mtxf_mul_vec3s(Mat4 mtx, Vec3s b);
 void mtxf_to_mtx(Mtx *dest, Mat4 src);
-void mtxf_rotate_xy(Mtx *mtx, s16 angle);
+void mtxf_rotate_xy(Mat4 mtx, s16 angle);
 void get_pos_from_transform_mtx(Vec3f dest, Mat4 objMtx, Mat4 camMtx);
 void mtxf_get_transform_position(Vec3f dest, Mat4 mtx);
 void vec3f_get_dist_and_angle(Vec3f from, Vec3f to, f32 *dist, s16 *pitch, s16 *yaw);

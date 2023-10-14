@@ -12,8 +12,10 @@
 #define MAX_TILT  DEGREES(30.0f)
 #define LERP_RATE (f32)(5.0 * M_PI / 180.0)
 
-static s32 allow_tilt(struct MarioState *m) {
-    if (m->input & INPUT_IN_WATER) {
+#define CAMERA_SIZE 40.0f
+
+s32 ball_allow_tilt(struct MarioState *m) {
+    if (m->input & (INPUT_IN_WATER | INPUT_FIRST_PERSON)) {
         return FALSE;
     } else if (m->action & (ACT_FLAG_ON_POLE | ACT_FLAG_RIDING_SHELL)) {
         return FALSE;
@@ -27,7 +29,7 @@ static s32 allow_tilt(struct MarioState *m) {
 void ball_update_world_tilt(struct MarioState *m) {
     Vec3f targetWorldUp;
 
-    if (allow_tilt(m)) {
+    if (ball_allow_tilt(m)) {
         s16 pitch = sqr(m->controller->stickMag / 64.0f) * MAX_TILT;
         s16 yaw = atan2s(-m->controller->stickY, m->controller->stickX) + m->area->camera->yaw;
         // Swap sin and cos for pitch to get up vector
@@ -98,7 +100,10 @@ static void handle_camera_collision(Mat4 transform, struct GraphNodeCamera *node
 
     if (cameraPos[1] < node->pos[1]) {
         // Raise camera to floor
-        height = find_floor(cameraPos[0], node->pos[1], cameraPos[2], &surface) + 125.0f;
+        height = find_floor(cameraPos[0], node->pos[1], cameraPos[2], &surface) + CAMERA_SIZE;
+        if (surface == NULL) {
+            height = find_floor(node->pos[0], node->pos[1], node->pos[2], &surface) + CAMERA_SIZE;
+        }
         if (surface == NULL || height > node->pos[1]) {
             height = node->pos[1];
         } else if (height < cameraPos[1]) {
@@ -106,7 +111,10 @@ static void handle_camera_collision(Mat4 transform, struct GraphNodeCamera *node
         }
     } else if (cameraPos[1] > node->pos[1]) {
         // Lower camera to ceiling
-        height = find_ceil(cameraPos[0], node->pos[1], cameraPos[2], &surface) - 125.0f;
+        height = find_ceil(cameraPos[0], node->pos[1], cameraPos[2], &surface) - CAMERA_SIZE;
+        if (surface == NULL) {
+            height = find_floor(node->pos[0], node->pos[1], node->pos[2], &surface) - CAMERA_SIZE;
+        }
         if (surface == NULL || height < node->pos[1]) {
             height = node->pos[1];
         } else if (height > cameraPos[1]) {
@@ -121,7 +129,14 @@ static void handle_camera_collision(Mat4 transform, struct GraphNodeCamera *node
     mtxf_mul(transform, translationMatrix, transform);
 }
 
-void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct GraphNodeCamera *node) {
+f32 gRollTest;
+
+static void split_roll_matrix(Mat4 transform, Mat4 rollMtx) {
+    gRollTest = transform[2][1];
+}
+
+void ball_get_camera_transform(Mat4 transform, Mat4 rollMtx, struct MarioState *m,
+                               struct GraphNodeCamera *node) {
     Vec3f offset;
     Vec3f right;
     Vec3f translation;
@@ -153,6 +168,7 @@ void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct Grap
     mtxf_mul(transform, translationMatrix, transform);
 
     handle_camera_collision(transform, node);
+    split_roll_matrix(transform, rollMtx);
 }
 
 s32 ball_can_interact(struct MarioState *m) {

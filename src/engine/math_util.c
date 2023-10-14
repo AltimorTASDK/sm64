@@ -392,26 +392,21 @@ void mtxf_rotate_xyz_and_translate(Mat4 dest, Vec3f b, Vec3s c) {
  * |      0          0          0     1 |
  */
 void mtxf_create_rot_matrix(Mat4 mtx, Vec3f vec, f32 s, f32 c) {
-    f32 oneMinusCos;
-    Vec3f rev;
+    f32 oneMinusCos = 1.0 - c;
 
-    vec3f_set(rev, vec[2], vec[1], vec[0]);
-
-    oneMinusCos = 1.0 - c;
-
-    mtx[0][0] = oneMinusCos * rev[2] * rev[2] + c;
-    mtx[0][1] = oneMinusCos * rev[2] * rev[1] + s * rev[0];
-    mtx[0][2] = oneMinusCos * rev[2] * rev[0] - s * rev[1];
+    mtx[0][0] = oneMinusCos * vec[0] * vec[0] + c;
+    mtx[0][1] = oneMinusCos * vec[0] * vec[1] + s * vec[2];
+    mtx[0][2] = oneMinusCos * vec[0] * vec[2] - s * vec[1];
     mtx[0][3] = 0.0f;
 
-    mtx[1][0] = oneMinusCos * rev[2] * rev[1] - s * rev[0];
-    mtx[1][1] = oneMinusCos * rev[1] * rev[1] + c;
-    mtx[1][2] = oneMinusCos * rev[1] * rev[0] + s * rev[2];
+    mtx[1][0] = oneMinusCos * vec[0] * vec[1] - s * vec[2];
+    mtx[1][1] = oneMinusCos * vec[1] * vec[1] + c;
+    mtx[1][2] = oneMinusCos * vec[1] * vec[2] + s * vec[0];
     mtx[1][3] = 0.0f;
 
-    mtx[2][0] = oneMinusCos * rev[2] * rev[0] + s * rev[1];
-    mtx[2][1] = oneMinusCos * rev[1] * rev[0] - s * rev[2];
-    mtx[2][2] = oneMinusCos * rev[0] * rev[0] + c;
+    mtx[2][0] = oneMinusCos * vec[0] * vec[2] + s * vec[1];
+    mtx[2][1] = oneMinusCos * vec[1] * vec[2] - s * vec[0];
+    mtx[2][2] = oneMinusCos * vec[2] * vec[2] + c;
     mtx[2][3] = 0.0f;
 
     mtx[3][0] = 0.0f;
@@ -687,15 +682,12 @@ void mtxf_to_mtx(Mtx *dest, Mat4 src) {
 /**
  * Set 'mtx' to a transformation matrix that rotates around the z axis.
  */
-void mtxf_rotate_xy(Mtx *mtx, s16 angle) {
-    Mat4 temp;
-
-    mtxf_identity(temp);
-    temp[0][0] = coss(angle);
-    temp[0][1] = sins(angle);
-    temp[1][0] = -temp[0][1];
-    temp[1][1] = temp[0][0];
-    mtxf_to_mtx(mtx, temp);
+void mtxf_rotate_xy(Mat4 mtx, s16 angle) {
+    mtxf_identity(mtx);
+    mtx[0][0] = coss(angle);
+    mtx[0][1] = sins(angle);
+    mtx[1][0] = -mtx[0][1];
+    mtx[1][1] = mtx[0][0];
 }
 
 /**
