@@ -69,9 +69,7 @@ void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
     f32 xzLength = sqrtf(v[0] * v[0] + v[2] * v[2]);
 
     if (invert) {
-        up[0] = -m->worldUp[0];
-        up[1] = m->worldUp[1];
-        up[2] = -m->worldUp[2];
+        vec3f_set(up, -m->worldUp[0], m->worldUp[1], -m->worldUp[2]);
     } else {
         vec3f_copy(up, m->worldUp);
     }
