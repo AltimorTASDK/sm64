@@ -808,7 +808,7 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
 
         case ACT_BACKFLIP:
             m->marioObj->header.gfx.animInfo.animID = -1;
-            m->forwardVel = -16.0f;
+            mario_set_forward_vel(m, -16.0f);
             set_mario_y_vel_based_on_fspeed(m, 62.0f, 0.0f);
             break;
 
@@ -832,7 +832,7 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
 
         case ACT_BURNING_JUMP:
             m->vel[1] = 31.5f;
-            m->forwardVel = 8.0f;
+            mario_set_forward_vel(m, 8.0f);
             break;
 
         case ACT_RIDING_SHELL_JUMP:
