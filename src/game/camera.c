@@ -2326,7 +2326,7 @@ s16 update_default_camera(struct Camera *c) {
     posHeight = 0.f;
     if (c->mode == CAMERA_MODE_FREE_ROAM) {
         if (gCameraMovementFlags & CAM_MOVE_ZOOMED_OUT) {
-            posHeight = 375.f;
+            posHeight = 375.f * BALL_CAM_DISTANCE_MUL;
             if (gCurrLevelArea == AREA_SSL_PYRAMID) {
                 posHeight /= 2;
             }
@@ -2335,7 +2335,7 @@ s16 update_default_camera(struct Camera *c) {
         }
     }
     if ((gCameraMovementFlags & CAM_MOVE_ZOOMED_OUT) && (sSelectionFlags & CAM_MODE_MARIO_ACTIVE)) {
-        posHeight = 610.f;
+        posHeight = 610.f * BALL_CAM_DISTANCE_MUL;
         if (gCurrLevelArea == AREA_SSL_PYRAMID || gCurrLevelNum == LEVEL_CASTLE) {
             posHeight /= 2;
         }
