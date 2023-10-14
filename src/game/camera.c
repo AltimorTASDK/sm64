@@ -3281,6 +3281,7 @@ void reset_camera(struct Camera *c) {
     gLakituState.unusedVec1[1] = 0.f;
     gLakituState.unusedVec1[2] = 0.f;
     gLakituState.lastFrameAction = 0;
+    gLakituState.isPauseCam = FALSE;
     set_fov_function(CAM_FOV_DEFAULT);
     sFOVState.fov = 45.f;
     sFOVState.fovOffset = 0.f;
@@ -3482,7 +3483,6 @@ void zoom_out_if_paused_and_outside(struct GraphNodeCamera *camera) {
     if (gCameraMovementFlags & CAM_MOVE_PAUSE_SCREEN) {
         if (sFramesPaused >= 2) {
             if (sZoomOutAreaMasks[areaMaskIndex] & areaBit) {
-
                 camera->focus[0] = gCamera->areaCenX;
                 camera->focus[1] = (sMarioCamState->pos[1] + gCamera->areaCenY) / 2;
                 camera->focus[2] = gCamera->areaCenZ;
@@ -3491,11 +3491,14 @@ void zoom_out_if_paused_and_outside(struct GraphNodeCamera *camera) {
                 if (gCurrLevelNum != LEVEL_THI) {
                     find_in_bounds_yaw_wdw_bob_thi(camera->pos, camera->focus, 0);
                 }
+                gLakituState.isPauseCam = TRUE;
             }
         } else {
+            gLakituState.isPauseCam = FALSE;
             sFramesPaused++;
         }
     } else {
+        gLakituState.isPauseCam = FALSE;
         sFramesPaused = 0;
     }
 }

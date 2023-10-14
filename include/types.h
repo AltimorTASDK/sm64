@@ -321,6 +321,8 @@ struct MarioState {
         f32 y;
         f32 z;
     } floorNormal, wallNormal;
+
+    Mat4 tiltTransform;
 };
 
 #endif // TYPES_H

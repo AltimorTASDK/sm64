@@ -1792,6 +1792,7 @@ s32 execute_mario_action(UNUSED struct Object *o) {
         update_mario_health(gMarioState);
         update_mario_info_for_cam(gMarioState);
         mario_update_hitbox_and_cap_model(gMarioState);
+        ball_update_mario_rotation(gMarioState);
 
         // Both of the wind handling portions play wind audio only in
         // non-Japanese releases.
