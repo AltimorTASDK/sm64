@@ -22,6 +22,8 @@ s32 ball_allow_tilt(struct MarioState *m) {
         return FALSE;
     } else if (m->action == ACT_LAVA_BOOST) {
         return FALSE;
+    } else if (m->action == ACT_FIRST_PERSON) {
+        return FALSE;
     } else {
         return TRUE;
     }
