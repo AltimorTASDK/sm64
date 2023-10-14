@@ -720,6 +720,15 @@ void get_pos_from_transform_mtx(Vec3f dest, Mat4 objMtx, Mat4 camMtx) {
 }
 
 /**
+ * Extract a position from a transform matrix.
+ */
+void mtxf_get_transform_position(Vec3f dest, Mat4 mtx) {
+    dest[0] = -(mtx[3][0] * mtx[0][0] + mtx[3][1] * mtx[0][1] + mtx[3][2] * mtx[0][2]);
+    dest[1] = -(mtx[3][0] * mtx[1][0] + mtx[3][1] * mtx[1][1] + mtx[3][2] * mtx[1][2]);
+    dest[2] = -(mtx[3][0] * mtx[2][0] + mtx[3][1] * mtx[2][1] + mtx[3][2] * mtx[2][2]);
+}
+
+/**
  * Take the vector starting at 'from' pointed at 'to' an retrieve the length
  * of that vector, as well as the yaw and pitch angles.
  * Basically it converts the direction to spherical coordinates.

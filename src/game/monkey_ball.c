@@ -7,6 +7,7 @@
 #include "game_init.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
+#include "engine/surface_collision.h"
 
 #define MAX_TILT  DEGREES(30.0f)
 #define LERP_RATE (f32)(5.0 * M_PI / 180.0)
@@ -86,13 +87,41 @@ void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
     }
 }
 
-static void raise_camera_to_floor(Mat4 transform, struct GraphNodeCamera *node)
-{
-    //floorHeight = find_floor(nextPos[0], nextPos[1], nextPos[2], &floor);
+static void handle_camera_collision(Mat4 transform, struct GraphNodeCamera *node) {
+    Vec3f cameraPos;
+    f32 height;
+    Vec3f translation;
+    Mat4 translationMatrix;
+    struct Surface *surface;
+
+    mtxf_get_transform_position(cameraPos, transform);
+
+    if (cameraPos[1] < node->pos[1]) {
+        // Raise camera to floor
+        height = find_floor(cameraPos[0], node->pos[1], cameraPos[2], &surface) + 125.0f;
+        if (surface == NULL || height > node->pos[1]) {
+            height = node->pos[1];
+        } else if (height < cameraPos[1]) {
+            return;
+        }
+    } else if (cameraPos[1] > node->pos[1]) {
+        // Lower camera to ceiling
+        height = find_ceil(cameraPos[0], node->pos[1], cameraPos[2], &surface) - 125.0f;
+        if (surface == NULL || height < node->pos[1]) {
+            height = node->pos[1];
+        } else if (height > cameraPos[1]) {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    vec3f_set(translation, 0.0f, cameraPos[1] - height, 0.0f);
+    mtxf_translate(translationMatrix, translation);
+    mtxf_mul(transform, translationMatrix, transform);
 }
 
-void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct GraphNodeCamera *node)
-{
+void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct GraphNodeCamera *node) {
     Vec3f offset;
     Vec3f right;
     Vec3f translation;
@@ -101,8 +130,9 @@ void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct Grap
     f32 *worldUp;
     f32 angleSine;
 
-    if (m == NULL || m->worldUp[1] >= 1.0f) {
+    if (!gMarioIsInitialized || m->worldUp[1] >= 1.0f) {
         mtxf_lookat(transform, node->pos, node->focus, node->roll);
+        return;
     }
 
     worldUp = m->worldUp;
@@ -122,5 +152,5 @@ void ball_get_camera_transform(Mat4 transform, struct MarioState *m, struct Grap
     mtxf_translate(translationMatrix, translation);
     mtxf_mul(transform, translationMatrix, transform);
 
-    raise_camera_to_floor(transform, node);
+    handle_camera_collision(transform, node);
 }
