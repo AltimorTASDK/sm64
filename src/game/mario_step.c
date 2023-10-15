@@ -163,10 +163,10 @@ u32 mario_push_off_steep_floor(struct MarioState *m, u32 action, u32 actionArg) 
     s16 floorDYaw = m->floorAngle - m->faceAngle[1];
 
     if (floorDYaw > DEGREES(-90) && floorDYaw < DEGREES(90)) {
-        m->forwardVel = 16.0f;
+        mario_set_forward_vel(m, 16.0f);
         m->faceAngle[1] = m->floorAngle;
     } else {
-        m->forwardVel = -16.0f;
+        mario_set_forward_vel(m, -16.0f);
         m->faceAngle[1] = m->floorAngle + DEGREES(180);
     }
 
