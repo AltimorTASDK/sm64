@@ -1447,8 +1447,16 @@ s32 common_slide_action_with_jump(struct MarioState *m, u32 stopAction, u32 jump
 }
 
 s32 act_butt_slide(struct MarioState *m) {
-    s32 cancel = common_slide_action_with_jump(m, ACT_BUTT_SLIDE_STOP, ACT_JUMP, ACT_BUTT_SLIDE_AIR,
-                                               MARIO_ANIM_SLIDE);
+    s32 cancel;
+
+    if ((m->input & INPUT_B_PRESSED) && mario_check_object_grab(m)) {
+        mario_grab_used_object(m);
+        m->marioBodyState->grabPos = GRAB_POS_LIGHT_OBJ;
+        return TRUE;
+    }
+
+    cancel = common_slide_action_with_jump(m, ACT_BUTT_SLIDE_STOP, ACT_JUMP, ACT_BUTT_SLIDE_AIR,
+                                           MARIO_ANIM_SLIDE);
     tilt_body_butt_slide(m);
     return cancel;
 }
@@ -1458,6 +1466,10 @@ s32 act_hold_butt_slide(struct MarioState *m) {
 
     if (m->marioObj->oInteractStatus & INT_STATUS_MARIO_DROP_OBJECT) {
         return drop_and_set_mario_action(m, ACT_BUTT_SLIDE, 0);
+    }
+
+    if (m->input & INPUT_B_PRESSED) {
+        return set_mario_action(m, ACT_THROWING, 0);
     }
 
     cancel = common_slide_action_with_jump(m, ACT_HOLD_BUTT_SLIDE_STOP, ACT_HOLD_JUMP, ACT_HOLD_BUTT_SLIDE_AIR,
@@ -1541,8 +1553,7 @@ s32 stomach_slide_action(struct MarioState *m, u32 stopAction, u32 jumpAction, u
 }
 
 s32 act_stomach_slide(struct MarioState *m) {
-    s32 cancel = stomach_slide_action(m, ACT_STOMACH_SLIDE_STOP, ACT_JUMP, ACT_FREEFALL, MARIO_ANIM_SLIDE_DIVE);
-    return cancel;
+    return stomach_slide_action(m, ACT_STOMACH_SLIDE_STOP, ACT_JUMP, ACT_FREEFALL, MARIO_ANIM_SLIDE_DIVE);
 }
 
 s32 act_hold_stomach_slide(struct MarioState *m) {
@@ -1550,6 +1561,10 @@ s32 act_hold_stomach_slide(struct MarioState *m) {
 
     if (m->marioObj->oInteractStatus & INT_STATUS_MARIO_DROP_OBJECT) {
         return drop_and_set_mario_action(m, ACT_STOMACH_SLIDE, 0);
+    }
+
+    if (m->input & INPUT_B_PRESSED) {
+        return set_mario_action(m, ACT_THROWING, 0);
     }
 
     cancel = stomach_slide_action(m, ACT_DIVE_PICKING_UP, ACT_HOLD_JUMP, ACT_HOLD_FREEFALL, MARIO_ANIM_SLIDE_DIVE);
@@ -1587,6 +1602,12 @@ s32 act_dive_slide(struct MarioState *m) {
     common_slide_action(m, ACT_STOMACH_SLIDE_STOP, ACT_FREEFALL, MARIO_ANIM_DIVE);
     return FALSE;
 #else
+    if (mario_check_object_grab(m)) {
+        mario_grab_used_object(m);
+        m->marioBodyState->grabPos = GRAB_POS_LIGHT_OBJ;
+        return TRUE;
+    }
+
     return act_stomach_slide(m);
 #endif
 }

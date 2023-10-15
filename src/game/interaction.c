@@ -388,10 +388,6 @@ void mario_retrieve_cap(void) {
 u32 able_to_grab_object(struct MarioState *m, UNUSED struct Object *o) {
     if (m->action == ACT_DIVE) {
         return TRUE;
-    } else if (m->action == ACT_FORWARD_ROLLOUT) {
-        return TRUE;
-    } else if (m->action == ACT_BACKWARD_ROLLOUT) {
-        return TRUE;
     } else if (ball_can_interact(m)) {
         return TRUE;
     } else {
