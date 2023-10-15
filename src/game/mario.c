@@ -922,24 +922,10 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
  */
 static u32 set_mario_action_moving(struct MarioState *m, u32 action, UNUSED u32 actionArg) {
     s16 floorClass = mario_get_floor_class(m);
-    f32 forwardVel = m->forwardVel;
-    f32 mag = min(m->intendedMag, 8.0f);
 
     switch (action) {
         case ACT_WALKING:
-            if (floorClass != SURFACE_CLASS_VERY_SLIPPERY) {
-                if (0.0f <= forwardVel && forwardVel < mag) {
-                    m->forwardVel = mag;
-                }
-            }
-
             m->marioObj->oMarioWalkingPitch = 0;
-            break;
-
-        case ACT_HOLD_WALKING:
-            if (0.0f <= forwardVel && forwardVel < mag / 2.0f) {
-                m->forwardVel = mag / 2.0f;
-            }
             break;
 
         case ACT_BEGIN_SLIDING:
