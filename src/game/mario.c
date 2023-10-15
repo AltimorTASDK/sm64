@@ -1358,9 +1358,8 @@ void update_mario_geometry_inputs(struct MarioState *m) {
     gasLevel = find_poison_gas_level(m->pos[0], m->pos[2]);
     m->waterLevel = find_water_level(m->pos[0], m->pos[2]);
 
-    ball_update_surface_normals(m);
-
     if (m->floor != NULL) {
+        ball_update_floor_normal(m, m->floor);
         m->floorAngle = atan2s(m->floorNormal.z, m->floorNormal.x);
         m->terrainSoundAddend = mario_get_terrain_sound_addend(m);
 

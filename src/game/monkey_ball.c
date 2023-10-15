@@ -97,15 +97,6 @@ void ball_update_wall_normal(struct MarioState *m, struct Surface *wall) {
     ball_rotate_vector(m, &m->wallNormal.x, &wall->normal.x, FALSE);
 }
 
-void ball_update_surface_normals(struct MarioState *m) {
-    if (m->floor != NULL) {
-        ball_rotate_vector(m, &m->floorNormal.x, &m->floor->normal.x, FALSE);
-    }
-    if (m->wall != NULL) {
-        ball_rotate_vector(m, &m->wallNormal.x, &m->wall->normal.x, FALSE);
-    }
-}
-
 void ball_rotate_vector(struct MarioState *m, Vec3f out, Vec3f v, s32 invert) {
     Vec3f forward;
     Vec3f right;
