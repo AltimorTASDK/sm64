@@ -1327,7 +1327,9 @@ void update_mario_joystick_inputs(struct MarioState *m) {
         m->input |= INPUT_NONZERO_ANALOG;
     } else {
         m->intendedYaw = m->faceAngle[1];
-        m->interactYaw = atan2s(m->vel[2], m->vel[0]);
+        if (m->vel[0] != 0.0f || m->vel[2] != 0.0f) {
+            m->interactYaw = atan2s(m->vel[2], m->vel[0]);
+        }
     }
 }
 
