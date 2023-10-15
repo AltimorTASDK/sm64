@@ -235,6 +235,7 @@ s32 update_sliding(struct MarioState *m, f32 stopSpeed) {
         forward *= 0.5f + 0.5f * m->forwardVel / 100.0f;
     }
 
+#if 0
     switch (mario_get_floor_class(m)) {
         case SURFACE_CLASS_VERY_SLIPPERY:
             accel = 10.0f;
@@ -256,6 +257,10 @@ s32 update_sliding(struct MarioState *m, f32 stopSpeed) {
             lossFactor = m->intendedMag / 32.0f * forward * 0.02f + 0.92f;
             break;
     }
+#else
+    accel = 7.0f;
+    lossFactor = m->intendedMag / 32.0f * forward * 0.02f + 0.92f;
+#endif
 
     oldSpeed = sqrtf(m->slideVelX * m->slideVelX + m->slideVelZ * m->slideVelZ);
 
