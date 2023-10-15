@@ -19,9 +19,9 @@
 
 // calc_y_to_curr_floor parameters
 #define BALL_CAM_POS_MUL   1.0f
-#define BALL_CAM_POS_BOUND 200.0f
+#define BALL_CAM_POS_BOUND 100.0f
 #define BALL_CAM_FOC_MUL   0.9f
-#define BALL_CAM_FOC_BOUND 200.0f
+#define BALL_CAM_FOC_BOUND 100.0f
 
 // Extra distance added to NPC/sign hitboxes for interaction
 #define BALL_TALK_LENIENCY 50.0f
