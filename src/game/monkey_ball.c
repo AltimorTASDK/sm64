@@ -52,6 +52,10 @@ s32 ball_can_interact(struct MarioState *m) {
         return TRUE;
     } else if (m->action == ACT_DIVE_SLIDE) {
         return TRUE;
+    } else if (m->action == ACT_PUNCHING) {
+        return TRUE;
+    } else if (m->action == ACT_MOVE_PUNCHING) {
+        return TRUE;
     } else {
         return FALSE;
     }
