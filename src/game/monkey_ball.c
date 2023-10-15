@@ -219,7 +219,9 @@ static void split_roll_matrix(Mat4 transform, Mat4 rollMatrix) {
 
 void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioState *m,
                                struct GraphNodeCamera *node) {
-    Vec3f offset;
+    Vec3f pivotPoint;
+    Vec3f pivotOffset;
+    Vec3f relativePos;
     Vec3f translation;
     Mat4 translationMatrix;
     Mat4 tiltMatrix;
@@ -229,14 +231,21 @@ void ball_get_camera_transform(Mat4 transform, Mat4 rollMatrix, struct MarioStat
         return;
     }
 
-    vec3f_copy(offset, node->pos);
-    vec3f_sub(offset, node->focus);
-    mtxf_lookat(transform, offset, gVec3fZero, node->roll);
+    // Make the world/camera pivot around Mario's centerpoint
+    vec3f_set(pivotPoint, m->pos[0], m->pos[1] + 80.0f, m->pos[2]);
+    vec3f_copy(pivotOffset, node->focus);
+    vec3f_sub(pivotOffset, pivotPoint);
+
+    vec3f_copy(relativePos, node->pos);
+    vec3f_sub(relativePos, node->focus);
+    vec3f_add(relativePos, pivotOffset);
+    mtxf_lookat(transform, relativePos, pivotOffset, node->roll);
 
     create_tilt_matrix(m, tiltMatrix, TRUE);
     mtxf_mul(transform, tiltMatrix, transform);
 
     vec3f_set(translation, -node->focus[0], -node->focus[1], -node->focus[2]);
+    vec3f_add(translation, pivotOffset);
     mtxf_translate(translationMatrix, translation);
     mtxf_mul(transform, translationMatrix, transform);
 
