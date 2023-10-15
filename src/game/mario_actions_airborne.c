@@ -382,6 +382,7 @@ void update_flying(struct MarioState *m) {
 
 u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, u32 stepArg) {
     u32 stepResult;
+    f32 lengthSqr;
 
     update_air_without_turn(m);
 
@@ -400,7 +401,9 @@ u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, 
         case AIR_STEP_HIT_WALL:
             set_mario_animation(m, animation);
 
-            if (sqr(m->vel[0]) + sqr(m->vel[2]) > sqr(16.0f)) {
+            lengthSqr = sqr(m->vel[0]) + sqr(m->vel[2]);
+
+            if (lengthSqr > sqr(16.0f)) {
 #if ENABLE_RUMBLE
                 queue_rumble_data(5, 40);
 #endif
@@ -423,13 +426,11 @@ u32 common_air_action_step(struct MarioState *m, u32 landAction, s32 animation, 
                     // wall collision, or by rising into the top of a wall such
                     // that the final quarter step detects a ledge, but you are
                     // not able to ledge grab it.
-                    if (m->forwardVel >= 38.0f) {
+                    if (lengthSqr >= 38.0f) {
                         m->particleFlags |= PARTICLE_VERTICAL_STAR;
                         set_mario_action(m, ACT_BACKWARD_AIR_KB, 0);
                     } else {
-                        if (m->forwardVel > 8.0f) {
-                            mario_set_forward_vel(m, -8.0f);
-                        }
+                        mario_set_forward_vel(m, -8.0f);
                         return set_mario_action(m, ACT_SOFT_BONK, 0);
                     }
                 }
