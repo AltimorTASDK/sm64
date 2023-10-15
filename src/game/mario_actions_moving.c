@@ -942,7 +942,7 @@ s32 act_hold_heavy_walking(struct MarioState *m) {
     }
 
     if (should_begin_sliding(m)) {
-        return drop_and_set_mario_action(m, ACT_BEGIN_SLIDING, 0);
+        return set_mario_action(m, ACT_HOLD_BEGIN_SLIDING, 0);
     }
 
 #if 0
