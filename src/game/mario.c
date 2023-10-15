@@ -921,8 +921,6 @@ static u32 set_mario_action_airborne(struct MarioState *m, u32 action, u32 actio
  * Transitions for a variety of moving actions.
  */
 static u32 set_mario_action_moving(struct MarioState *m, u32 action, UNUSED u32 actionArg) {
-    s16 floorClass = mario_get_floor_class(m);
-
     switch (action) {
         case ACT_WALKING:
             m->marioObj->oMarioWalkingPitch = 0;
