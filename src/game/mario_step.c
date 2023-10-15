@@ -402,6 +402,10 @@ u32 check_ledge_grab(struct MarioState *m, struct Surface *wall, Vec3f intendedP
         return FALSE;
     }
 
+    if (ledgeFloor->normal.y < COS_25) {
+        return FALSE;
+    }
+
     vec3f_copy(m->pos, ledgePos);
     m->floor = ledgeFloor;
     m->floorHeight = ledgePos[1];
