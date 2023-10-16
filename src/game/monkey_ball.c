@@ -38,6 +38,8 @@ s32 ball_allow_tilt(struct MarioState *m) {
         return FALSE;
     } else if (m->action == ACT_READING_SIGN) {
         return FALSE;
+    } else if (m->action == ACT_INTRO_CUTSCENE) {
+        return FALSE;
     } else {
         return TRUE;
     }
