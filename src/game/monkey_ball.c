@@ -40,6 +40,14 @@ s32 ball_allow_tilt(struct MarioState *m) {
         return FALSE;
     } else if (m->action == ACT_INTRO_CUTSCENE) {
         return FALSE;
+    } else if (m->action == ACT_JUMBO_STAR_CUTSCENE) {
+        return FALSE;
+    } else if (m->action == ACT_END_PEACH_CUTSCENE) {
+        return FALSE;
+    } else if (m->action == ACT_CREDITS_CUTSCENE) {
+        return FALSE;
+    } else if (m->action == ACT_END_WAVING_CUTSCENE) {
+        return FALSE;
     } else {
         return TRUE;
     }
